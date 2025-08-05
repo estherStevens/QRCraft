@@ -2,4 +2,10 @@
 <resources>
 
     <style name="Theme.QRCraft" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.QRCraftSplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#273037</item>
+        <item name="postSplashScreenTheme">@style/Theme.QRCraft</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splashscreen_icon</item>
+    </style>
 </resources>
