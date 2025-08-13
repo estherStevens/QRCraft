@@ -5,7 +5,9 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +23,15 @@ import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.SnackbarDefaults
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,10 +39,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,14 +52,19 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
 import com.stevens.software.qrcraft.ui.theme.extendedColours
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CameraScreen() {
+fun CameraScreen(
+    viewModel: CameraViewModel
+) {
+    val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val permission = Manifest.permission.CAMERA
     val activity = LocalActivity.current
+    val scope = rememberCoroutineScope()
     var hasPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -60,8 +77,20 @@ fun CameraScreen() {
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        if (isGranted.not()) {
-            showDialog = true
+        if (isGranted) {
+            viewModel.showPermissionGrantedSnackBar()
+        }
+    }
+
+
+    val snackBarMessage =  stringResource(R.string.camera_permission_granted_snackbar)
+    LaunchedEffect(Unit) {
+        viewModel.snackBar.collect { message ->
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = snackBarMessage
+                )
+            }
         }
     }
 
@@ -71,21 +100,36 @@ fun CameraScreen() {
         }
     }
 
-    if (showDialog) {
-        CameraPermissionsDialog(
-            onDismissDialog = {
-                showDialog = false
-            },
-            onCloseApp = {
-                activity?.finish()
-            },
-            launchPermissionDialog = {
-                showDialog = false
-                permissionLauncher.launch(permission)
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                snackbar = { snackbarData ->
+                    CustomSnackBar(snackbarData)
+                }
+            )
+        }
+    ) { contentPadding ->
+        Box(modifier = Modifier.padding(contentPadding)){
+            if (showDialog) {
+                CameraPermissionsDialog(
+                    onDismissDialog = {
+                        showDialog = false
+                    },
+                    onCloseApp = {
+                        activity?.finish()
+                    },
+                    launchPermissionDialog = {
+                        showDialog = false
+                        permissionLauncher.launch(permission)
+                    }
+                )
             }
-        )
+        }
     }
+
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -183,11 +227,33 @@ private fun GrantPermissionDialogButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
+
 @Composable
-fun Preview() {
-    QRCraftTheme {
+private fun CustomSnackBar(
+    snackbarData: SnackbarData
+){
+    Box(
+        modifier = Modifier.background(
+            color = MaterialTheme.extendedColours.success,
+            shape = RoundedCornerShape(6.dp)
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 13.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.tick_icon),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(Modifier.size(8.dp))
+            Text(
+                text = snackbarData.visuals.message,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
 
     }
 }
