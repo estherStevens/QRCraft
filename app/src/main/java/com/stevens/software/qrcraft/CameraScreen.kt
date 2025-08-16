@@ -5,7 +5,7 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,15 +23,10 @@ import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarData
-import androidx.compose.material3.SnackbarDefaults
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,19 +36,27 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.stevens.software.qrcraft.ui.theme.extendedColours
 import kotlinx.coroutines.launch
-
+import androidx.camera.compose.CameraXViewfinder
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.Preview
+import androidx.camera.core.SurfaceRequest
+import androidx.camera.viewfinder.core.ImplementationMode
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import com.stevens.software.qrcraft.ui.toolkit.CustomSnackBar
+import com.stevens.software.qrcraft.ui.toolkit.QRScannerOverlay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,16 +77,19 @@ fun CameraScreen(
     }
 
     var showDialog by remember { mutableStateOf(false) }
+    var launchCamera by remember { mutableStateOf(false) }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
+            launchCamera = true
             viewModel.showPermissionGrantedSnackBar()
         }
     }
 
 
-    val snackBarMessage =  stringResource(R.string.camera_permission_granted_snackbar)
+    val snackBarMessage = stringResource(R.string.camera_permission_granted_snackbar)
     LaunchedEffect(Unit) {
         viewModel.snackBar.collect { message ->
             scope.launch {
@@ -97,6 +103,8 @@ fun CameraScreen(
     LaunchedEffect(Unit) {
         if (hasPermission.not()) {
             showDialog = true
+        } else {
+            launchCamera = true
         }
     }
 
@@ -110,7 +118,7 @@ fun CameraScreen(
             )
         }
     ) { contentPadding ->
-        Box(modifier = Modifier.padding(contentPadding)){
+        Box(modifier = Modifier.padding(contentPadding)) {
             if (showDialog) {
                 CameraPermissionsDialog(
                     onDismissDialog = {
@@ -125,10 +133,75 @@ fun CameraScreen(
                     }
                 )
             }
+            if (launchCamera) {
+                QRScannerView()
+            }
         }
     }
+}
+
+@Composable
+fun QRScannerView(
+//    onQrScanned: (String) -> Unit
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+    val imageAnalysis = remember {
+        ImageAnalysis.Builder()
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .build()
+    }
+    var surfaceRequest by remember { mutableStateOf<SurfaceRequest?>(null) }
+
+    LaunchedEffect(Unit) {
+        imageAnalysis.setAnalyzer(
+            ContextCompat.getMainExecutor(context),
+            QrCodeAnalyzer({
+            }
+            )
+        )
+    }
+
+    LaunchedEffect(cameraProviderFuture) {
+        val cameraProvider = cameraProviderFuture.get()
+        val preview = Preview.Builder().build()
+        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+        preview.setSurfaceProvider { request ->
+            surfaceRequest = request
+        }
+
+        cameraProvider.unbindAll()
+        cameraProvider.bindToLifecycle(
+            lifecycleOwner,
+            cameraSelector,
+            preview,
+            imageAnalysis
+        )
+    }
+
+    Box {
+        surfaceRequest?.let {
+            CameraXViewfinder(
+                surfaceRequest = it,
+                modifier = Modifier.fillMaxSize(),
+                implementationMode = ImplementationMode.EXTERNAL,
+                alignment = Alignment.Center,
+                contentScale = ContentScale.Crop
+            )
+        }
+
+
+        QRScannerOverlay()
+
+
+    }
+
 
 }
+
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -137,7 +210,7 @@ private fun CameraPermissionsDialog(
     onDismissDialog: () -> Unit,
     onCloseApp: () -> Unit,
     launchPermissionDialog: () -> Unit
-){
+) {
     BasicAlertDialog(
         onDismissRequest = onDismissDialog
     ) {
@@ -171,7 +244,7 @@ private fun CameraPermissionsDialog(
 }
 
 @Composable
-private fun DialogTitle(){
+private fun DialogTitle() {
     Text(
         text = stringResource(R.string.camera_permission_dialog_title),
         style = MaterialTheme.typography.titleSmall,
@@ -180,7 +253,7 @@ private fun DialogTitle(){
 }
 
 @Composable
-private fun DialogSubtitle(){
+private fun DialogSubtitle() {
     Text(
         text = stringResource(R.string.camera_permission_dialog_content),
         style = MaterialTheme.typography.bodyLarge,
@@ -192,7 +265,7 @@ private fun DialogSubtitle(){
 @Composable
 private fun CloseAppDialogButton(
     onCloseApp: () -> Unit
-){
+) {
     Button(
         onClick = onCloseApp,
         colors = ButtonDefaults.buttonColors().copy(
@@ -211,7 +284,7 @@ private fun CloseAppDialogButton(
 @Composable
 private fun GrantPermissionDialogButton(
     launchPermissionDialog: () -> Unit
-){
+) {
     Button(
         onClick = launchPermissionDialog,
         colors = ButtonDefaults.buttonColors().copy(
@@ -227,33 +300,3 @@ private fun GrantPermissionDialogButton(
     }
 }
 
-
-@Composable
-private fun CustomSnackBar(
-    snackbarData: SnackbarData
-){
-    Box(
-        modifier = Modifier.background(
-            color = MaterialTheme.extendedColours.success,
-            shape = RoundedCornerShape(6.dp)
-        )
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 13.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.tick_icon),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(Modifier.size(8.dp))
-            Text(
-                text = snackbarData.visuals.message,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-
-    }
-}

@@ -2,6 +2,7 @@ package com.stevens.software.qrcraft.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+val Primary = Color(0xFFEBFF69)
 val Surface = Color(0xFFEDF2F5)
 val OnSurface = Color(0xFF273037)
 val Error = Color(0xFFF12244)

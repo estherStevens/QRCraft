@@ -8,6 +8,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
 
 private val LightColorScheme = lightColorScheme(
+    primary = Primary,
     surface = Surface,
     onSurface = OnSurface,
     error = Error
