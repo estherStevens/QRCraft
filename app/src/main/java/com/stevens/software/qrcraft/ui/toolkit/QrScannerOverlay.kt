@@ -55,7 +55,6 @@ fun QRScannerOverlay() {
         )
     }
 
-
     Box(modifier = Modifier.fillMaxSize()) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawRect(overlayColour)

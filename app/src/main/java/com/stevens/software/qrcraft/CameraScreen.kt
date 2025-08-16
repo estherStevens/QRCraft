@@ -6,7 +6,6 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,10 +50,14 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.viewfinder.core.ImplementationMode
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.stevens.software.qrcraft.ui.theme.Text
 import com.stevens.software.qrcraft.ui.toolkit.CustomSnackBar
 import com.stevens.software.qrcraft.ui.toolkit.QRScannerOverlay
 
@@ -63,6 +66,7 @@ import com.stevens.software.qrcraft.ui.toolkit.QRScannerOverlay
 fun CameraScreen(
     viewModel: CameraViewModel
 ) {
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val permission = Manifest.permission.CAMERA
@@ -134,7 +138,12 @@ fun CameraScreen(
                 )
             }
             if (launchCamera) {
-                QRScannerView()
+                QRScannerView(
+                    isLoading = uiState.value.isLoading,
+                    onQrScanned = {
+                        viewModel.readQrCode(it)
+                    }
+                )
             }
         }
     }
@@ -142,7 +151,8 @@ fun CameraScreen(
 
 @Composable
 fun QRScannerView(
-//    onQrScanned: (String) -> Unit
+    isLoading: Boolean,
+    onQrScanned: (String) -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -153,11 +163,13 @@ fun QRScannerView(
             .build()
     }
     var surfaceRequest by remember { mutableStateOf<SurfaceRequest?>(null) }
+    var showLoadingSpinner by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         imageAnalysis.setAnalyzer(
             ContextCompat.getMainExecutor(context),
             QrCodeAnalyzer({
+                onQrScanned(it)
             }
             )
         )
@@ -181,6 +193,7 @@ fun QRScannerView(
         )
     }
 
+
     Box {
         surfaceRequest?.let {
             CameraXViewfinder(
@@ -192,11 +205,30 @@ fun QRScannerView(
             )
         }
 
-
         QRScannerOverlay()
 
+        if(isLoading) {
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(32.dp),
+                    color = MaterialTheme.extendedColours.onOverlay
 
+                )
+                Spacer(Modifier.size(12.dp))
+                Text(
+                    stringResource(R.string.qr_detected_loading),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.extendedColours.onOverlay
+                )
+            }
+
+        }
     }
+
 
 
 }
