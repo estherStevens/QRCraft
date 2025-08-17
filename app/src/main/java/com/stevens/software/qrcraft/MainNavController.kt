@@ -1,5 +1,6 @@
 package com.stevens.software.qrcraft
 
+import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -8,6 +9,7 @@ import androidx.navigation.toRoute
 import com.stevens.software.qrcraft.qr_camera.CameraScreen
 import com.stevens.software.qrcraft.qr_result.QrResultScreen
 import com.stevens.software.qrcraft.qr_result.QrResultViewModel
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -16,7 +18,7 @@ import org.koin.core.parameter.parametersOf
 object QrCamera
 
 @Serializable
-data class ScanResult(val rawQrData: String)
+data class ScanResult(val qrCodeBitmapFilePath: String, val rawQrData: String)
 
 @Composable
 fun MainNavController() {
@@ -26,9 +28,9 @@ fun MainNavController() {
         composable<QrCamera>{
             CameraScreen(
                 viewModel = koinViewModel(),
-                onNavigateToScanResult = {
+                onNavigateToScanResult = { qrCodeBitmapFilePath, rawData ->
                     navController.navigate(
-                        ScanResult(it)
+                        ScanResult(qrCodeBitmapFilePath, rawData)
                     )
                 }
             )
@@ -39,10 +41,14 @@ fun MainNavController() {
                 viewModel = koinViewModel(
                     parameters = {
                         parametersOf(
-                            routeArgs.rawQrData
+                            routeArgs.rawQrData,
+                            routeArgs.qrCodeBitmapFilePath
                         )
                     }
-                )
+                ),
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
             )
         }
     }

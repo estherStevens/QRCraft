@@ -2,6 +2,8 @@ package com.stevens.software.qrcraft.qr_camera
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.util.Size
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -64,7 +66,7 @@ import com.stevens.software.qrcraft.ui.toolkit.QRScannerOverlay
 @Composable
 fun CameraScreen(
     viewModel: CameraViewModel,
-    onNavigateToScanResult: (String) -> Unit
+    onNavigateToScanResult: (String, String) -> Unit
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -139,8 +141,8 @@ fun CameraScreen(
             if (launchCamera) {
                 QRScannerView(
                     isLoading = uiState.value.isLoading,
-                    onQrScanned = {
-                        onNavigateToScanResult(it)
+                    onQrScanned = { qrCodeBitmapFilePath, rawData ->
+                        onNavigateToScanResult(qrCodeBitmapFilePath, rawData)
                     },
                     onQrDetected = {
                         viewModel.onQrCodeDetected()
@@ -154,7 +156,7 @@ fun CameraScreen(
 @Composable
 fun QRScannerView(
     isLoading: Boolean,
-    onQrScanned: (String) -> Unit,
+    onQrScanned: (String, String) -> Unit,
     onQrDetected: () -> Unit
 ) {
     val context = LocalContext.current
@@ -162,6 +164,7 @@ fun QRScannerView(
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     val imageAnalysis = remember {
         ImageAnalysis.Builder()
+            .setTargetResolution(Size(1280, 1280))
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .build()
     }
@@ -171,9 +174,12 @@ fun QRScannerView(
         imageAnalysis.setAnalyzer(
             ContextCompat.getMainExecutor(context),
             QrCodeAnalyzer(
+                context = context,
                 onQrCodeDetected = onQrDetected,
-                onQrCodeScanned = onQrScanned
-            )
+                onQrCodeScanned = { qrCodeBitmapFilePath, rawData ->
+                    onQrScanned(qrCodeBitmapFilePath, rawData)
+                }
+        )
         )
     }
 
