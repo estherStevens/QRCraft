@@ -32,12 +32,8 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             QRCraftTheme {
-                CameraScreen(
-                    viewModel = koinViewModel()
-                )
+                MainNavController()
             }
-
-
         }
     }
 }

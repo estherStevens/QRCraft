@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialize)
 }
 
 android {
@@ -59,7 +60,8 @@ dependencies {
     implementation(libs.camera2)
     implementation(libs.camera.extensions)
     implementation(libs.camera.compose)
-//    implementation(libs.camera.viewfinder)
+    implementation(libs.compose.navigation)
+    implementation(libs.kotlin.serialization)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

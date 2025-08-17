@@ -1,4 +1,4 @@
-package com.stevens.software.qrcraft
+package com.stevens.software.qrcraft.qr_camera
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class CameraViewModel: ViewModel() {
@@ -34,9 +35,9 @@ class CameraViewModel: ViewModel() {
         }
     }
 
-    fun readQrCode(qrData: String){
-        viewModelScope.launch {
-            _isLoading.emit(true)
+    fun onQrCodeDetected(){
+        _isLoading.update {
+            true
         }
     }
 }

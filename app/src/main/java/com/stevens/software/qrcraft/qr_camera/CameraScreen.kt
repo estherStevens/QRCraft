@@ -1,4 +1,4 @@
-package com.stevens.software.qrcraft
+package com.stevens.software.qrcraft.qr_camera
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -54,17 +54,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.stevens.software.qrcraft.ui.theme.Text
+import com.stevens.software.qrcraft.R
 import com.stevens.software.qrcraft.ui.toolkit.CustomSnackBar
 import com.stevens.software.qrcraft.ui.toolkit.QRScannerOverlay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CameraScreen(
-    viewModel: CameraViewModel
+    viewModel: CameraViewModel,
+    onNavigateToScanResult: (String) -> Unit
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -91,7 +91,6 @@ fun CameraScreen(
             viewModel.showPermissionGrantedSnackBar()
         }
     }
-
 
     val snackBarMessage = stringResource(R.string.camera_permission_granted_snackbar)
     LaunchedEffect(Unit) {
@@ -141,7 +140,10 @@ fun CameraScreen(
                 QRScannerView(
                     isLoading = uiState.value.isLoading,
                     onQrScanned = {
-                        viewModel.readQrCode(it)
+                        onNavigateToScanResult(it)
+                    },
+                    onQrDetected = {
+                        viewModel.onQrCodeDetected()
                     }
                 )
             }
@@ -152,7 +154,8 @@ fun CameraScreen(
 @Composable
 fun QRScannerView(
     isLoading: Boolean,
-    onQrScanned: (String) -> Unit
+    onQrScanned: (String) -> Unit,
+    onQrDetected: () -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -163,14 +166,13 @@ fun QRScannerView(
             .build()
     }
     var surfaceRequest by remember { mutableStateOf<SurfaceRequest?>(null) }
-    var showLoadingSpinner by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         imageAnalysis.setAnalyzer(
             ContextCompat.getMainExecutor(context),
-            QrCodeAnalyzer({
-                onQrScanned(it)
-            }
+            QrCodeAnalyzer(
+                onQrCodeDetected = onQrDetected,
+                onQrCodeScanned = onQrScanned
             )
         )
     }

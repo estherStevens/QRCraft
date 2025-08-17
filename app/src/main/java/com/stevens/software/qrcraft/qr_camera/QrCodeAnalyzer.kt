@@ -1,6 +1,5 @@
-package com.stevens.software.qrcraft
+package com.stevens.software.qrcraft.qr_camera
 
-import android.R
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
@@ -11,7 +10,8 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 
 class QrCodeAnalyzer(
-    private val onQrCodeScanned: (String) -> Unit
+    private val onQrCodeScanned: (String) -> Unit,
+    private val onQrCodeDetected: () -> Unit
 ): ImageAnalysis.Analyzer {
     private val scanner = BarcodeScanning.getClient(
         BarcodeScannerOptions.Builder()
@@ -28,6 +28,7 @@ class QrCodeAnalyzer(
             scanner.process(inputImage)
                 .addOnSuccessListener { qrCode ->
                     qrCode.forEach {
+                        onQrCodeDetected()
                         val rawValue = it.rawValue
                         if(rawValue.isNullOrBlank().not()){
                             onQrCodeScanned(rawValue)

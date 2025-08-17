@@ -14,6 +14,9 @@ koin_version = "4.1.0"
 ml_kit_version = "17.3.0"
 camera_x_version = "1.4.2"
 camera_compose = "1.5.0-beta02"
+compose_nav = "2.9.3"
+kotlin_serialization = "1.8.0"
+kotlin_serialization_plugin = "2.2.10"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,11 +43,11 @@ camera-lifecycle =  { group = "androidx.camera", name = "camera-lifecycle",  ver
 camera-view =  { group = "androidx.camera", name = "camera-view",  version.ref = "camera_x_version"}
 camera-extensions =  { group = "androidx.camera", name = "camera-extensions",  version.ref = "camera_x_version"}
 camera-compose =  { group = "androidx.camera", name = "camera-compose",  version.ref = "camera_compose"}
-#camera-viewfinder =  { group = "androidx.camera", name = "camera-viewfinder",  version = "1.4.0-beta01"}
-
+compose_navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "compose_nav" }
+kotlin-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlin_serialization" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
+kotlin-serialize = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin_serialization_plugin" }
