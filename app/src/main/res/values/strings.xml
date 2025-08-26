@@ -20,4 +20,8 @@
     <string name="qr_type_wifi_encryption_type">Encryption type: WAP%s</string>
     <string name="show_more">Show more</string>
     <string name="show_less">Show less</string>
+    <string name="qr_result_share">Share</string>
+    <string name="qr_result_copy">Copy</string>
+    <string name="qr_result_share_content_description">Share qr result</string>
+    <string name="qr_result_copy_content_description">Copy qr result</string>
 </resources>

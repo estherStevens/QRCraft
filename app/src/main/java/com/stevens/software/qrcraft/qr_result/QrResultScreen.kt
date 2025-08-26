@@ -5,15 +5,20 @@ import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -121,7 +126,7 @@ private fun ScannedQrInfo(
             .padding(top = 100.dp)
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.extendedColours.surfaceHigher,
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(16.dp)
             ),
         contentAlignment = Alignment.Center,
@@ -139,6 +144,12 @@ private fun ScannedQrInfo(
                 is QrCodeData.Url -> Link(qrCodeData)
                 is QrCodeData.Wifi -> Wifi(qrCodeData)
             }
+            Spacer(Modifier.size(24.dp))
+            ActionButtons(
+                onShare = {},
+                onCopy = {}
+            )
+            Spacer(Modifier.size(16.dp))
         }
     }
 }
@@ -192,8 +203,6 @@ private fun PlainText(qrCodeData: QrCodeData.PlainText) {
                 }
             )
         }
-
-        Spacer(Modifier.size(24.dp))
     }
 
 }
@@ -335,13 +344,87 @@ private fun ScannedQrCodeImage(
     }
 }
 
-@Preview
+@Composable
+private fun ActionButtons(
+    onShare:() -> Unit,
+    onCopy: () -> Unit
+){
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        ShareButton(
+            modifier = Modifier.weight(1f),
+            onShare = onShare
+        )
+        CopyButton(
+            modifier = Modifier.weight(1f),
+            onCopy = onCopy
+        )
+    }
+}
+
+@Composable
+private fun ShareButton(
+    modifier: Modifier = Modifier,
+    onShare: () -> Unit
+){
+    Button(
+        onClick = onShare,
+        colors = ButtonDefaults.buttonColors().copy(
+            containerColor = MaterialTheme.extendedColours.surfaceHigher
+        ),
+        shape = CircleShape,
+        modifier = modifier
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.share_icon),
+            contentDescription = stringResource(R.string.qr_result_share_content_description),
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(Modifier.size(8.dp))
+        Text(
+            text = stringResource(R.string.qr_result_share),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
+private fun CopyButton(
+    modifier: Modifier = Modifier,
+    onCopy: () -> Unit
+){
+    Button(
+        onClick = onCopy,
+        colors = ButtonDefaults.buttonColors().copy(
+            containerColor = MaterialTheme.extendedColours.surfaceHigher
+        ),
+        shape = CircleShape,
+        modifier = modifier
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.copy_icon),
+            contentDescription = stringResource(R.string.qr_result_copy_content_description),
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(Modifier.size(8.dp))
+        Text(
+            text = stringResource(R.string.qr_result_copy),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Preview(showSystemUi = true)
 @Composable
 fun Preview() {
     QRCraftTheme {
         QrResultView(
             qrCodeBitmap = null,
-            qrTypeTile = null,
+            qrTypeTile = QrCodeData.PlainText("Some Text Here"),
             onNavigateBack = {}
         )
     }
