@@ -106,6 +106,16 @@ fun CameraScreen(
     }
 
     LaunchedEffect(Unit) {
+        viewModel.navigationEvents.collect { event ->
+            when(event) {
+                is CameraNavigationEvents.OnNavigateToScanResult -> {
+                    onNavigateToScanResult(event.qrCodeBitmapFilePath, event.qrData)
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
         if (hasPermission.not()) {
             showDialog = true
         } else {
@@ -142,7 +152,7 @@ fun CameraScreen(
                 QRScannerView(
                     isLoading = uiState.value.isLoading,
                     onQrScanned = { qrCodeBitmapFilePath, qrData ->
-                        onNavigateToScanResult(qrCodeBitmapFilePath, qrData)
+                        viewModel.onNavigateToScanResult(qrCodeBitmapFilePath, qrData)
                     },
                     onQrDetected = {
                         viewModel.onQrCodeDetected()

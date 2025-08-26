@@ -2,6 +2,7 @@ package com.stevens.software.qrcraft.qr_camera
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,6 +16,9 @@ import kotlinx.coroutines.launch
 class CameraViewModel(): ViewModel() {
     private val _snackBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val snackBar = _snackBar.asSharedFlow()
+
+    private val _navigationEvents: MutableSharedFlow<CameraNavigationEvents> = MutableSharedFlow()
+    val navigationEvents = _navigationEvents.asSharedFlow()
 
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
@@ -40,8 +44,19 @@ class CameraViewModel(): ViewModel() {
             true
         }
     }
+
+    fun onNavigateToScanResult(qrCodeBitmapFilePath: String, qrData: QrCodeData?){
+        viewModelScope.launch {
+            _isLoading.emit(false)
+            _navigationEvents.emit(CameraNavigationEvents.OnNavigateToScanResult(qrCodeBitmapFilePath, qrData))
+        }
+    }
 }
 
 data class QrCameraUiState(
     val isLoading: Boolean,
 )
+
+sealed interface CameraNavigationEvents{
+    data class OnNavigateToScanResult(val qrCodeBitmapFilePath: String, val qrData: QrCodeData?) : CameraNavigationEvents
+}
