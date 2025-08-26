@@ -8,6 +8,7 @@ val OnSurface = Color(0xFF273037)
 val Error = Color(0xFFF12244)
 val SurfaceHigher = Color(0xFFFFFFFF)
 val OnSurfaceAlt = Color(0xFF273037)
+val OnSurfaceDisabled = Color(0xFF8C99A2)
 val Overlay = Color(0xFF000000).copy(alpha = 0.5F)
 val OnOverlay = Color(0xFFFFFFFF)
 val Link = Color(0xFF373F05)
@@ -28,6 +29,7 @@ val WifiBg = Color(0xFF1F44CD).copy(alpha = 0.1F)
 val extendedColors = ExtendedColors(
     surfaceHigher = SurfaceHigher,
     onSurfaceAlt = OnSurfaceAlt,
+    onSurfaceDisabled = OnSurfaceDisabled,
     overlay = Overlay,
     onOverlay = OnOverlay,
     link = Link,
@@ -48,6 +50,7 @@ val extendedColors = ExtendedColors(
 data class ExtendedColors(
     val surfaceHigher: Color,
     val onSurfaceAlt: Color,
+    val onSurfaceDisabled: Color,
     val overlay: Color,
     val onOverlay: Color,
     val link: Color,

@@ -147,12 +147,17 @@ private fun ScannedQrInfo(
 private fun PlainText(qrCodeData: QrCodeData.PlainText) {
     var showMoreIsEnabled by remember { mutableStateOf(false) }
     var shouldShowMoreButton by remember { mutableStateOf(false) }
+    val maxLines = if (showMoreIsEnabled) Int.MAX_VALUE else 6
 
     val showMoreText = when (showMoreIsEnabled) {
         true -> stringResource(R.string.show_less)
         false -> stringResource(R.string.show_more)
     }
-    val maxLines = if (showMoreIsEnabled) Int.MAX_VALUE else 6
+
+    val showMoreTextColour = when (showMoreIsEnabled) {
+        true -> MaterialTheme.extendedColours.onSurfaceDisabled
+        false -> MaterialTheme.extendedColours.onSurfaceAlt
+    }
 
     Text(
         text = stringResource(R.string.qr_type_text),
@@ -181,7 +186,7 @@ private fun PlainText(qrCodeData: QrCodeData.PlainText) {
             Text(
                 text = showMoreText,
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.extendedColours.onSurfaceAlt,
+                color = showMoreTextColour,
                 modifier = Modifier.clickable {
                     showMoreIsEnabled = showMoreIsEnabled.not()
                 }
