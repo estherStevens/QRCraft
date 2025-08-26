@@ -26,9 +26,11 @@ import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
 import com.stevens.software.qrcraft.ui.theme.extendedColours
 
 @Composable
-fun BottomNavigationBar() {
+fun BottomNavigationBar(
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .width(168.dp)
             .height(64.dp),
         contentAlignment = Alignment.Center
