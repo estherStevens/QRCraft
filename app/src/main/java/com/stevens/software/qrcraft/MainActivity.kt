@@ -16,12 +16,15 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.stevens.software.qrcraft.di.appModule
 import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
 import com.stevens.software.qrcraft.ui.toolkit.BottomNavigationBar
@@ -42,6 +45,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             QRCraftTheme {
                 val navController = rememberNavController()
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry?.destination?.route
                 Scaffold(
                     bottomBar = {
                         Box(
@@ -54,6 +59,7 @@ class MainActivity : ComponentActivity() {
                             contentAlignment = Alignment.Center
                         ) {
                             BottomNavigationBar(
+                                currentRoute = currentDestination,
                                 onNavigateToAddQrCode = { navController.navigate(AddQrChooseType) },
                                 onNavigateToScanQrCode = { navController.navigate(QrCamera) }
                             )

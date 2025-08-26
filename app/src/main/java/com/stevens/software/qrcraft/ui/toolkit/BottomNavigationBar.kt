@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,16 +22,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.stevens.software.qrcraft.AddQrChooseType
+import com.stevens.software.qrcraft.AppRoute
 import com.stevens.software.qrcraft.R
 import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
 import com.stevens.software.qrcraft.ui.theme.extendedColours
 
 @Composable
 fun BottomNavigationBar(
+    currentRoute: String?,
     modifier: Modifier = Modifier,
-    onNavigateToAddQrCode: () -> Unit, 
+    onNavigateToAddQrCode: () -> Unit,
     onNavigateToScanQrCode: () -> Unit
 ) {
+    val selectedItemColour = IconButtonDefaults.iconButtonColors(MaterialTheme.colorScheme.primary.copy(0.3F))
     Box(
         modifier = modifier
             .width(168.dp)
@@ -66,7 +71,13 @@ fun BottomNavigationBar(
             Spacer(Modifier.width(60.dp))
             IconButton(
                 onClick = onNavigateToAddQrCode,
-                modifier = Modifier.padding(4.dp)
+                modifier = Modifier
+                    .padding(4.dp)
+                    .size(44.dp),
+                colors = when(currentRoute == AddQrChooseType::class.qualifiedName){
+                    true -> selectedItemColour
+                    false -> IconButtonDefaults.iconButtonColors()
+                }
             ) {
                 Icon(
                     painter = painterResource(R.drawable.add_qr_icon),
@@ -98,11 +109,14 @@ fun BottomNavigationBar(
     }
 }
 
+
+
 @Preview()
 @Composable
 fun BottomNavigationBarPreview() {
     QRCraftTheme {
         BottomNavigationBar(
+            currentRoute = "AddQrChooseType",
             onNavigateToAddQrCode = {},
             onNavigateToScanQrCode = {}
         )

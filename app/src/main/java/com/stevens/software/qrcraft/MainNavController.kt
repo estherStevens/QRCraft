@@ -17,13 +17,16 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Serializable
-object QrCamera
+sealed interface AppRoute
 
 @Serializable
-data class ScanResult(val qrCodeBitmapFilePath: String, val qrData: String)
+object QrCamera: AppRoute
 
 @Serializable
-object AddQrChooseType
+data class ScanResult(val qrCodeBitmapFilePath: String, val qrData: String): AppRoute
+
+@Serializable
+object AddQrChooseType: AppRoute
 
 @Composable
 fun MainNavController(
