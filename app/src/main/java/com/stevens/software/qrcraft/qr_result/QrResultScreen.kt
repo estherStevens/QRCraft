@@ -1,7 +1,7 @@
 package com.stevens.software.qrcraft.qr_result
 
+import android.content.Intent
 import android.graphics.Bitmap
-import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,19 +26,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
@@ -51,7 +49,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stevens.software.qrcraft.R
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
-import com.stevens.software.qrcraft.ui.theme.Text
 import com.stevens.software.qrcraft.ui.theme.extendedColours
 
 @Composable
@@ -59,11 +56,21 @@ fun QrResultScreen(
     viewModel: QrResultViewModel,
     onNavigateBack: () -> Unit
 ) {
+    val context = LocalContext.current
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     QrResultView(
         qrCodeBitmap = uiState.value.qrCodeBitmap,
-        qrTypeTile = uiState.value.qrDataType,
-        onNavigateBack = onNavigateBack
+        qrCodeData = uiState.value.qrDataType,
+        onNavigateBack = onNavigateBack,
+        onShare = {
+            val sendIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, it)
+                type = "text/plain"
+            }
+            val shareIntent = Intent.createChooser(sendIntent, null)
+            context.startActivity(shareIntent)
+        }
     )
 }
 
@@ -71,8 +78,9 @@ fun QrResultScreen(
 @Composable
 fun QrResultView(
     qrCodeBitmap: Bitmap?,
-    qrTypeTile: QrCodeData?,
-    onNavigateBack: () -> Unit
+    qrCodeData: QrCodeData?,
+    onNavigateBack: () -> Unit,
+    onShare: (String) -> Unit
 ) {
     Scaffold(
         modifier = Modifier.background(color = MaterialTheme.colorScheme.onSurface),
@@ -109,7 +117,7 @@ fun QrResultView(
                 .background(MaterialTheme.colorScheme.onSurface)
                 .padding(top = 44.dp),
         ) {
-            ScannedQrInfo(qrTypeTile)
+            ScannedQrInfo(qrCodeData = qrCodeData, onShare = onShare)
             ScannedQrCodeImage(qrCodeBitmap)
         }
     }
@@ -118,6 +126,7 @@ fun QrResultView(
 @Composable
 private fun ScannedQrInfo(
     qrCodeData: QrCodeData?,
+    onShare: (String) -> Unit
 ) {
     if (qrCodeData == null) return
     Box(
@@ -146,7 +155,9 @@ private fun ScannedQrInfo(
             }
             Spacer(Modifier.size(24.dp))
             ActionButtons(
-                onShare = {},
+                onShare = {
+                    onShare(extractDataAndConvertToString(qrCodeData))
+                },
                 onCopy = {}
             )
             Spacer(Modifier.size(16.dp))
@@ -418,14 +429,39 @@ private fun CopyButton(
     }
 }
 
+private fun extractDataAndConvertToString(qrCodeData: QrCodeData): String =
+    when(qrCodeData){
+        is QrCodeData.ContactDetails -> buildString {
+            appendLine(qrCodeData.name)
+            appendLine(qrCodeData.tel)
+            appendLine(qrCodeData.email)
+        }
+        is QrCodeData.Geolocation -> buildString {
+            append(qrCodeData.latitude)
+            append(", ")
+            append(qrCodeData.longitude)
+        }
+        is QrCodeData.PhoneNumber -> qrCodeData.phoneNumber
+        is QrCodeData.PlainText -> qrCodeData.text
+        is QrCodeData.Url -> qrCodeData.link
+        is QrCodeData.Wifi -> buildString {
+            appendLine(qrCodeData.ssid)
+            appendLine(qrCodeData.password)
+            appendLine(qrCodeData.encryptionType)
+        }
+    }
+
+
+
 @Preview(showSystemUi = true)
 @Composable
 fun Preview() {
     QRCraftTheme {
         QrResultView(
             qrCodeBitmap = null,
-            qrTypeTile = QrCodeData.PlainText("Some Text Here"),
-            onNavigateBack = {}
+            qrCodeData = QrCodeData.PlainText("Some Text Here"),
+            onNavigateBack = {},
+            onShare = {}
         )
     }
 }
