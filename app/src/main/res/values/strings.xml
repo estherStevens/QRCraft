@@ -24,4 +24,8 @@
     <string name="qr_result_copy">Copy</string>
     <string name="qr_result_share_content_description">Share qr result</string>
     <string name="qr_result_copy_content_description">Copy qr result</string>
+    <string name="qr_history_content_description">Qr history</string>
+    <string name="scan_qr_content_description">Scan QR code</string>
+    <string name="add_qr_content_description">Add QR code</string>
+
 </resources>
