@@ -27,5 +27,11 @@
     <string name="qr_history_content_description">Qr history</string>
     <string name="scan_qr_content_description">Scan QR code</string>
     <string name="add_qr_content_description">Add QR code</string>
-
+    <string name="create_qr_title">Create QR</string>
+    <string name="create_qr_text">Text</string>
+    <string name="create_qr_link">Link</string>
+    <string name="create_qr_contact">Contact</string>
+    <string name="create_qr_phone_number">Phone Number</string>
+    <string name="create_qr_geolocation">Geolocation</string>
+    <string name="create_qr_wifi">Wi-Fi</string>
 </resources>

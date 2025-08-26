@@ -1,5 +1,6 @@
 package com.stevens.software.qrcraft.di
 
+import com.stevens.software.qrcraft.generate_qr.SelectQrCodeTypeViewModel
 import com.stevens.software.qrcraft.qr_camera.CameraViewModel
 import com.stevens.software.qrcraft.qr_result.data.QrDataParser
 import com.stevens.software.qrcraft.qr_result.data.QrDataParserImpl
@@ -12,5 +13,6 @@ import org.koin.dsl.module
 val appModule = module {
     viewModelOf(::CameraViewModel)
     viewModelOf(::QrResultViewModel)
+    viewModelOf(::SelectQrCodeTypeViewModel)
     factoryOf(::QrDataParserImpl) bind QrDataParser::class
 }
