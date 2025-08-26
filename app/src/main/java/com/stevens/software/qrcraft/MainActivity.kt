@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import com.stevens.software.qrcraft.di.appModule
 import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
 import com.stevens.software.qrcraft.ui.toolkit.BottomNavigationBar
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             QRCraftTheme {
+                val navController = rememberNavController()
                 Scaffold(
                     bottomBar = {
                         Box(
@@ -51,11 +53,14 @@ class MainActivity : ComponentActivity() {
                                 .padding(bottom = 14.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            BottomNavigationBar()
+                            BottomNavigationBar(
+                                onNavigateToAddQrCode = { navController.navigate(AddQrChooseType) },
+                                onNavigateToScanQrCode = { navController.navigate(QrCamera) }
+                            )
                         }
                     }
                 ) { _ ->
-                    MainNavController()
+                    MainNavController(navController)
                 }
             }
         }

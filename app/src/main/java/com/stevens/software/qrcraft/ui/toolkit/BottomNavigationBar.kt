@@ -27,7 +27,9 @@ import com.stevens.software.qrcraft.ui.theme.extendedColours
 
 @Composable
 fun BottomNavigationBar(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToAddQrCode: () -> Unit, 
+    onNavigateToScanQrCode: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -63,7 +65,7 @@ fun BottomNavigationBar(
             }
             Spacer(Modifier.width(60.dp))
             IconButton(
-                onClick = {},
+                onClick = onNavigateToAddQrCode,
                 modifier = Modifier.padding(4.dp)
             ) {
                 Icon(
@@ -84,7 +86,7 @@ fun BottomNavigationBar(
             contentAlignment = Alignment.Center
         ) {
             IconButton(
-                onClick = {}
+                onClick = onNavigateToScanQrCode
             ) {
                 Icon(
                     painter = painterResource(R.drawable.qr_scan_icon),
@@ -100,6 +102,9 @@ fun BottomNavigationBar(
 @Composable
 fun BottomNavigationBarPreview() {
     QRCraftTheme {
-        BottomNavigationBar()
+        BottomNavigationBar(
+            onNavigateToAddQrCode = {},
+            onNavigateToScanQrCode = {}
+        )
     }
 }

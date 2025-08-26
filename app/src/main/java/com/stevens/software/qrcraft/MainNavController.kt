@@ -1,10 +1,13 @@
 package com.stevens.software.qrcraft
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.stevens.software.qrcraft.generate_qr.SelectQrCodeTypeScreen
 import com.stevens.software.qrcraft.qr_camera.CameraScreen
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.qr_result.QrResultScreen
@@ -19,10 +22,13 @@ object QrCamera
 @Serializable
 data class ScanResult(val qrCodeBitmapFilePath: String, val qrData: String)
 
-@Composable
-fun MainNavController() {
-    val navController = rememberNavController()
+@Serializable
+object AddQrChooseType
 
+@Composable
+fun MainNavController(
+    navController: NavHostController
+) {
     NavHost(navController = navController, startDestination = QrCamera){
         composable<QrCamera>{
             CameraScreen(
@@ -52,6 +58,11 @@ fun MainNavController() {
                         inclusive = false
                     )
                 }
+            )
+        }
+        composable<AddQrChooseType> {
+            SelectQrCodeTypeScreen(
+                viewModel = koinViewModel()
             )
         }
     }
