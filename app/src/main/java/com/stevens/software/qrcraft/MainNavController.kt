@@ -47,7 +47,10 @@ fun MainNavController() {
                     }
                 ),
                 onNavigateBack = {
-                    navController.popBackStack()
+                    navController.popBackStack(
+                        route = QrCamera,
+                        inclusive = false
+                    )
                 }
             )
         }
