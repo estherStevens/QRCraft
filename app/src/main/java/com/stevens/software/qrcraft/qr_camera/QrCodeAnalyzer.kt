@@ -21,12 +21,14 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.OffsetDateTime
 import androidx.core.graphics.scale
+import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
+import com.stevens.software.qrcraft.qr_camera.data.mapToQrCodeData
 import kotlin.math.max
 
 
 class QrCodeAnalyzer(
     private val context: Context,
-    private val onQrCodeScanned: (String, String) -> Unit,
+    private val onQrCodeScanned: (String, QrCodeData?) -> Unit,
     private val onQrCodeDetected: () -> Unit,
 ): ImageAnalysis.Analyzer {
 
@@ -40,10 +42,11 @@ class QrCodeAnalyzer(
     @OptIn(ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {
         val mediaImage = imageProxy.image
-        if(mediaImage != null) {
-            val inputImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+        if (mediaImage != null) {
+            val inputImage =
+                InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
             var bitmapPath = ""
-            var rawData = ""
+            var qrCodeData: QrCodeData? = null
             var qrScannedSuccessfully = false
             scanner.process(inputImage)
                 .addOnSuccessListener { qrCode ->
@@ -51,10 +54,11 @@ class QrCodeAnalyzer(
                     qrCode.forEach {
                         onQrCodeDetected()
                         val rawValue = it.rawValue
-                        if(rawValue.isNullOrBlank().not()){
+                        if (rawValue.isNullOrBlank().not()) {
                             val bitmap = cropBitmap(imageProxy.toRotatedBitmap(), it)
                             bitmapPath = saveBitmapToCache(context, bitmap)
-                            rawData = rawValue
+                            qrCodeData = it.mapToQrCodeData()
+
                             qrScannedSuccessfully = true
                         }
                     }
@@ -62,24 +66,23 @@ class QrCodeAnalyzer(
                 .addOnFailureListener {}
                 .addOnCompleteListener {
                     imageProxy.close()
-                    if(qrScannedSuccessfully) {
-                        onQrCodeScanned(bitmapPath, rawData)
+                    if (qrScannedSuccessfully) {
+                        onQrCodeScanned(bitmapPath, qrCodeData)
                     }
                 }
         } else {
             imageProxy.close()
         }
-
     }
 
 
-    private fun cropBitmap(qrCodeBitmap: Bitmap, barcode: Barcode) : Bitmap? {
+    private fun cropBitmap(qrCodeBitmap: Bitmap, barcode: Barcode): Bitmap? {
         val box = barcode.boundingBox ?: return null
         val x = box.left.coerceAtLeast(0)
         val y = box.top.coerceAtLeast(0)
         val width = box.width().coerceAtMost(qrCodeBitmap.width - x)
         val height = box.height().coerceAtMost(qrCodeBitmap.height - y)
-        val croppedBitmap =  Bitmap.createBitmap(qrCodeBitmap, x, y, width, height)
+        val croppedBitmap = Bitmap.createBitmap(qrCodeBitmap, x, y, width, height)
 
         val scale = 1024f / max(croppedBitmap.width, croppedBitmap.height)
         val scaledBitmap = croppedBitmap.scale(
@@ -91,7 +94,7 @@ class QrCodeAnalyzer(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun saveBitmapToCache(context: Context, bitmap: Bitmap?) : String {
+    private fun saveBitmapToCache(context: Context, bitmap: Bitmap?): String {
         val file = File(context.cacheDir, OffsetDateTime.now().toString())
         file.outputStream().use { outputStream ->
             bitmap?.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
@@ -120,7 +123,6 @@ class QrCodeAnalyzer(
         val yuv = out.toByteArray()
         val bitmap = BitmapFactory.decodeByteArray(yuv, 0, yuv.size)
 
-        // Rotate the bitmap according to image rotation
         val matrix = Matrix()
         matrix.postRotate(imageInfo.rotationDegrees.toFloat())
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)

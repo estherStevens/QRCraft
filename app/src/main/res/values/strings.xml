@@ -8,6 +8,14 @@
     <string name="qr_overlay_text">Point your camera at a QR code</string>
     <string name="qr_detected_loading">Loading…</string>
     <string name="scan_result">Scan Result</string>
-    <string name="back">Back</string>
-
+    <string name="back">Text</string>
+    <string name="qr_type_text">Text</string>
+    <string name="qr_type_link">Link</string>
+    <string name="qr_type_contact_details">Contact</string>
+    <string name="qr_type_phone_number">Phone Number</string>
+    <string name="qr_type_geolocation">Geolocation</string>
+    <string name="qr_type_wifi">Wi-Fi</string>
+    <string name="qr_type_wifi_ssid">SSID: %s</string>
+    <string name="qr_type_wifi_password">Password: %s</string>
+    <string name="qr_type_wifi_encryption_type">Encryption type: WAP%s</string>
 </resources>

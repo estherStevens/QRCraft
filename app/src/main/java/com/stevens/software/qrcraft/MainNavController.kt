@@ -1,16 +1,15 @@
 package com.stevens.software.qrcraft
 
-import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.stevens.software.qrcraft.qr_camera.CameraScreen
+import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.qr_result.QrResultScreen
-import com.stevens.software.qrcraft.qr_result.QrResultViewModel
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -18,7 +17,7 @@ import org.koin.core.parameter.parametersOf
 object QrCamera
 
 @Serializable
-data class ScanResult(val qrCodeBitmapFilePath: String, val rawQrData: String)
+data class ScanResult(val qrCodeBitmapFilePath: String, val qrData: String)
 
 @Composable
 fun MainNavController() {
@@ -28,20 +27,21 @@ fun MainNavController() {
         composable<QrCamera>{
             CameraScreen(
                 viewModel = koinViewModel(),
-                onNavigateToScanResult = { qrCodeBitmapFilePath, rawData ->
+                onNavigateToScanResult = { qrCodeBitmapFilePath, qrData ->
+                    val qrJsonString = Json.encodeToString<QrCodeData?>(qrData)
                     navController.navigate(
-                        ScanResult(qrCodeBitmapFilePath, rawData)
+                        ScanResult(qrCodeBitmapFilePath, qrJsonString)
                     )
                 }
             )
         }
-        composable<ScanResult> { navBackStackEntry ->
-            val routeArgs = navBackStackEntry.toRoute<ScanResult>()
+        composable<ScanResult>{ backStackEntry ->
+            val routeArgs = backStackEntry.toRoute<ScanResult>()
             QrResultScreen(
                 viewModel = koinViewModel(
                     parameters = {
                         parametersOf(
-                            routeArgs.rawQrData,
+                            routeArgs.qrData,
                             routeArgs.qrCodeBitmapFilePath
                         )
                     }

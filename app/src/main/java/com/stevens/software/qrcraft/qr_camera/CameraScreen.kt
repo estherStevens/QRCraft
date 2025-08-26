@@ -2,7 +2,6 @@ package com.stevens.software.qrcraft.qr_camera
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.util.Size
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -59,6 +58,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stevens.software.qrcraft.R
+import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.ui.toolkit.CustomSnackBar
 import com.stevens.software.qrcraft.ui.toolkit.QRScannerOverlay
 
@@ -66,7 +66,7 @@ import com.stevens.software.qrcraft.ui.toolkit.QRScannerOverlay
 @Composable
 fun CameraScreen(
     viewModel: CameraViewModel,
-    onNavigateToScanResult: (String, String) -> Unit
+    onNavigateToScanResult: (String, QrCodeData?) -> Unit
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -141,8 +141,8 @@ fun CameraScreen(
             if (launchCamera) {
                 QRScannerView(
                     isLoading = uiState.value.isLoading,
-                    onQrScanned = { qrCodeBitmapFilePath, rawData ->
-                        onNavigateToScanResult(qrCodeBitmapFilePath, rawData)
+                    onQrScanned = { qrCodeBitmapFilePath, qrData ->
+                        onNavigateToScanResult(qrCodeBitmapFilePath, qrData)
                     },
                     onQrDetected = {
                         viewModel.onQrCodeDetected()
@@ -156,7 +156,7 @@ fun CameraScreen(
 @Composable
 fun QRScannerView(
     isLoading: Boolean,
-    onQrScanned: (String, String) -> Unit,
+    onQrScanned: (String, QrCodeData?) -> Unit,
     onQrDetected: () -> Unit
 ) {
     val context = LocalContext.current
@@ -176,10 +176,9 @@ fun QRScannerView(
             QrCodeAnalyzer(
                 context = context,
                 onQrCodeDetected = onQrDetected,
-                onQrCodeScanned = { qrCodeBitmapFilePath, rawData ->
-                    onQrScanned(qrCodeBitmapFilePath, rawData)
-                }
-        )
+                onQrCodeScanned = { qrCodeBitmapFilePath, qrData ->
+                    onQrScanned(qrCodeBitmapFilePath, qrData)
+                })
         )
     }
 
@@ -236,12 +235,7 @@ fun QRScannerView(
 
         }
     }
-
-
-
 }
-
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class CameraViewModel: ViewModel() {
+class CameraViewModel(): ViewModel() {
     private val _snackBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val snackBar = _snackBar.asSharedFlow()
 
@@ -43,5 +43,5 @@ class CameraViewModel: ViewModel() {
 }
 
 data class QrCameraUiState(
-    val isLoading: Boolean
+    val isLoading: Boolean,
 )
