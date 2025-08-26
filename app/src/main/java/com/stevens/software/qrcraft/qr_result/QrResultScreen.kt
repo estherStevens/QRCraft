@@ -1,8 +1,10 @@
 package com.stevens.software.qrcraft.qr_result
 
 import android.graphics.Bitmap
+import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,16 +21,24 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,6 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stevens.software.qrcraft.R
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
+import com.stevens.software.qrcraft.ui.theme.Text
 import com.stevens.software.qrcraft.ui.theme.extendedColours
 
 @Composable
@@ -103,24 +114,24 @@ fun QrResultView(
 private fun ScannedQrInfo(
     qrCodeData: QrCodeData?,
 ) {
-    if(qrCodeData == null) return
+    if (qrCodeData == null) return
     Box(
         modifier = Modifier
-            .padding(top = 100.dp)
             .padding(horizontal = 16.dp)
+            .padding(top = 100.dp)
             .fillMaxWidth()
             .background(
                 color = MaterialTheme.extendedColours.surfaceHigher,
                 shape = RoundedCornerShape(16.dp)
-            )
-            .size(300.dp),
+            ),
         contentAlignment = Alignment.Center,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(horizontal = 16.dp)
         ) {
-            when(qrCodeData){
+            Spacer(Modifier.size(70.dp))
+            when (qrCodeData) {
                 is QrCodeData.ContactDetails -> ContactDetails(qrCodeData)
                 is QrCodeData.Geolocation -> Geolocation(qrCodeData)
                 is QrCodeData.PhoneNumber -> PhoneNumber(qrCodeData)
@@ -134,21 +145,56 @@ private fun ScannedQrInfo(
 
 @Composable
 private fun PlainText(qrCodeData: QrCodeData.PlainText) {
+    var showMoreIsEnabled by remember { mutableStateOf(false) }
+    var shouldShowMoreButton by remember { mutableStateOf(false) }
+
+    val showMoreText = when (showMoreIsEnabled) {
+        true -> stringResource(R.string.show_less)
+        false -> stringResource(R.string.show_more)
+    }
+    val maxLines = if (showMoreIsEnabled) Int.MAX_VALUE else 6
+
     Text(
         text = stringResource(R.string.qr_type_text),
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurface
+        color = MaterialTheme.colorScheme.onSurface,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth()
     )
     Spacer(Modifier.size(20.dp))
-    Text(
-        text = qrCodeData.text,
-        style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurface,
-    )
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Text(
+            text = qrCodeData.text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = maxLines,
+            overflow = TextOverflow.Ellipsis,
+            onTextLayout = { textLayoutResult ->
+                shouldShowMoreButton = textLayoutResult.hasVisualOverflow
+            }
+        )
+        if(shouldShowMoreButton){
+            Spacer(Modifier.size(4.dp))
+            Text(
+                text = showMoreText,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.extendedColours.onSurfaceAlt,
+                modifier = Modifier.clickable {
+                    showMoreIsEnabled = showMoreIsEnabled.not()
+                }
+            )
+        }
+
+        Spacer(Modifier.size(24.dp))
+    }
+
 }
 
 @Composable
-private fun PhoneNumber(qrCodeData: QrCodeData.PhoneNumber){
+private fun PhoneNumber(qrCodeData: QrCodeData.PhoneNumber) {
     Text(
         text = stringResource(R.string.qr_type_phone_number),
         style = MaterialTheme.typography.titleMedium,
@@ -164,7 +210,7 @@ private fun PhoneNumber(qrCodeData: QrCodeData.PhoneNumber){
 }
 
 @Composable
-private fun Geolocation(qrCodeData: QrCodeData.Geolocation){
+private fun Geolocation(qrCodeData: QrCodeData.Geolocation) {
     Text(
         text = stringResource(R.string.qr_type_geolocation),
         style = MaterialTheme.typography.titleMedium,
@@ -173,7 +219,10 @@ private fun Geolocation(qrCodeData: QrCodeData.Geolocation){
     Spacer(Modifier.size(20.dp))
     Text(
         text = buildAnnotatedString {
-            withStyle(style = MaterialTheme.typography.bodyLarge.toSpanStyle().copy(color = MaterialTheme.colorScheme.onSurface)) {
+            withStyle(
+                style = MaterialTheme.typography.bodyLarge.toSpanStyle()
+                    .copy(color = MaterialTheme.colorScheme.onSurface)
+            ) {
                 append(qrCodeData.longitude)
                 append(", ")
                 append(qrCodeData.latitude)
@@ -183,7 +232,7 @@ private fun Geolocation(qrCodeData: QrCodeData.Geolocation){
 }
 
 @Composable
-private fun ContactDetails(qrCodeData: QrCodeData.ContactDetails){
+private fun ContactDetails(qrCodeData: QrCodeData.ContactDetails) {
     Text(
         text = stringResource(R.string.qr_type_contact_details),
         style = MaterialTheme.typography.titleMedium,
@@ -209,7 +258,7 @@ private fun ContactDetails(qrCodeData: QrCodeData.ContactDetails){
 }
 
 @Composable
-private fun Link(qrCodeData: QrCodeData.Url){
+private fun Link(qrCodeData: QrCodeData.Url) {
     Text(
         text = stringResource(R.string.qr_type_link),
         style = MaterialTheme.typography.titleMedium,
@@ -227,7 +276,7 @@ private fun Link(qrCodeData: QrCodeData.Url){
 }
 
 @Composable
-private fun Wifi(qrCodeData: QrCodeData.Wifi){
+private fun Wifi(qrCodeData: QrCodeData.Wifi) {
     Text(
         text = stringResource(R.string.qr_type_wifi),
         style = MaterialTheme.typography.titleMedium,
