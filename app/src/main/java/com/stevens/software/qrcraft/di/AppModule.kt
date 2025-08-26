@@ -1,6 +1,7 @@
 package com.stevens.software.qrcraft.di
 
-import com.stevens.software.qrcraft.generate_qr.SelectQrCodeTypeViewModel
+import com.stevens.software.qrcraft.generate_qr.data_entry.QrDataEntryViewModel
+import com.stevens.software.qrcraft.generate_qr.select_type.SelectQrCodeTypeViewModel
 import com.stevens.software.qrcraft.qr_camera.CameraViewModel
 import com.stevens.software.qrcraft.qr_result.data.QrDataParser
 import com.stevens.software.qrcraft.qr_result.data.QrDataParserImpl
@@ -14,5 +15,6 @@ val appModule = module {
     viewModelOf(::CameraViewModel)
     viewModelOf(::QrResultViewModel)
     viewModelOf(::SelectQrCodeTypeViewModel)
+    viewModelOf(::QrDataEntryViewModel)
     factoryOf(::QrDataParserImpl) bind QrDataParser::class
 }

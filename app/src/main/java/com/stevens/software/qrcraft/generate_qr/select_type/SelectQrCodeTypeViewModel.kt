@@ -1,4 +1,4 @@
-package com.stevens.software.qrcraft.generate_qr
+package com.stevens.software.qrcraft.generate_qr.select_type
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

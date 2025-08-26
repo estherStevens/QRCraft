@@ -55,6 +55,7 @@ import com.stevens.software.qrcraft.R
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
 import com.stevens.software.qrcraft.ui.theme.extendedColours
+import com.stevens.software.qrcraft.ui.toolkit.TopNavBar
 
 @Composable
 fun QrResultScreen(
@@ -96,28 +97,11 @@ fun QrResultView(
     Scaffold(
         modifier = Modifier.background(color = MaterialTheme.colorScheme.onSurface),
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        stringResource(R.string.scan_result),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.extendedColours.onOverlay,
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onNavigateBack
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.back_icon),
-                            tint = MaterialTheme.extendedColours.onOverlay,
-                            contentDescription = stringResource(R.string.back)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors().copy(
-                    containerColor = MaterialTheme.colorScheme.onSurface
-                )
+            TopNavBar(
+                title = stringResource(R.string.scan_result),
+                backgroundColor = MaterialTheme.colorScheme.onSurface,
+                iconColour = MaterialTheme.extendedColours.onOverlay,
+                onNavigateBack = onNavigateBack
             )
         }
     ) { paddingValues ->

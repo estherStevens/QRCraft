@@ -1,13 +1,11 @@
 package com.stevens.software.qrcraft
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.stevens.software.qrcraft.generate_qr.SelectQrCodeTypeScreen
+import com.stevens.software.qrcraft.generate_qr.select_type.SelectQrCodeTypeScreen
 import com.stevens.software.qrcraft.qr_camera.CameraScreen
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.qr_result.QrResultScreen
