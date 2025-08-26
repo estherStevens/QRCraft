@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -141,7 +143,7 @@ private fun PlainText(qrCodeData: QrCodeData.PlainText) {
     Text(
         text = qrCodeData.text,
         style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurface
+        color = MaterialTheme.colorScheme.onSurface,
     )
 }
 
@@ -214,12 +216,14 @@ private fun Link(qrCodeData: QrCodeData.Url){
         color = MaterialTheme.colorScheme.onSurface
     )
     Spacer(Modifier.size(20.dp))
-    Text(
-        text = qrCodeData.link,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.onSurface,
-        modifier = Modifier.background(MaterialTheme.extendedColours.linkBg.copy(alpha = 0.3F))
-    )
+    SelectionContainer {
+        Text(
+            text = qrCodeData.link,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.background(MaterialTheme.extendedColours.linkBg.copy(alpha = 0.3F))
+        )
+    }
 }
 
 @Composable
