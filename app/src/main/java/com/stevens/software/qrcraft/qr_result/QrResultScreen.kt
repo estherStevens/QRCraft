@@ -1,5 +1,6 @@
 package com.stevens.software.qrcraft.qr_result
 
+import android.content.ClipData
 import android.content.Intent
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
@@ -36,9 +37,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -57,6 +62,8 @@ fun QrResultScreen(
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
+
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     QrResultView(
         qrCodeBitmap = uiState.value.qrCodeBitmap,
@@ -70,6 +77,9 @@ fun QrResultScreen(
             }
             val shareIntent = Intent.createChooser(sendIntent, null)
             context.startActivity(shareIntent)
+        },
+        onCopyToClipboard = {
+            clipboardManager.setText(AnnotatedString(it))
         }
     )
 }
@@ -80,7 +90,8 @@ fun QrResultView(
     qrCodeBitmap: Bitmap?,
     qrCodeData: QrCodeData?,
     onNavigateBack: () -> Unit,
-    onShare: (String) -> Unit
+    onShare: (String) -> Unit,
+    onCopyToClipboard: (String) -> Unit
 ) {
     Scaffold(
         modifier = Modifier.background(color = MaterialTheme.colorScheme.onSurface),
@@ -117,7 +128,10 @@ fun QrResultView(
                 .background(MaterialTheme.colorScheme.onSurface)
                 .padding(top = 44.dp),
         ) {
-            ScannedQrInfo(qrCodeData = qrCodeData, onShare = onShare)
+            ScannedQrInfo(
+                qrCodeData = qrCodeData,
+                onShare = onShare,
+                onCopyToClipboard = onCopyToClipboard)
             ScannedQrCodeImage(qrCodeBitmap)
         }
     }
@@ -126,7 +140,8 @@ fun QrResultView(
 @Composable
 private fun ScannedQrInfo(
     qrCodeData: QrCodeData?,
-    onShare: (String) -> Unit
+    onShare: (String) -> Unit,
+    onCopyToClipboard: (String) -> Unit
 ) {
     if (qrCodeData == null) return
     Box(
@@ -155,10 +170,8 @@ private fun ScannedQrInfo(
             }
             Spacer(Modifier.size(24.dp))
             ActionButtons(
-                onShare = {
-                    onShare(extractDataAndConvertToString(qrCodeData))
-                },
-                onCopy = {}
+                onShare = { onShare(extractDataAndConvertToString(qrCodeData)) },
+                onCopy = { onCopyToClipboard(extractDataAndConvertToString(qrCodeData)) }
             )
             Spacer(Modifier.size(16.dp))
         }
@@ -461,7 +474,8 @@ fun Preview() {
             qrCodeBitmap = null,
             qrCodeData = QrCodeData.PlainText("Some Text Here"),
             onNavigateBack = {},
-            onShare = {}
+            onShare = {},
+            onCopyToClipboard = {}
         )
     }
 }
