@@ -101,6 +101,7 @@ fun QrResultView(
                 title = stringResource(R.string.scan_result),
                 backgroundColor = MaterialTheme.colorScheme.onSurface,
                 iconColour = MaterialTheme.extendedColours.onOverlay,
+                titleColour = MaterialTheme.extendedColours.onOverlay,
                 onNavigateBack = onNavigateBack
             )
         }

@@ -20,6 +20,7 @@ fun TopNavBar(
     title: String,
     backgroundColor: Color,
     iconColour: Color,
+    titleColour: Color,
     onNavigateBack: () -> Unit,
 ) {
     CenterAlignedTopAppBar(
@@ -27,7 +28,7 @@ fun TopNavBar(
             Text(
                 title,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.extendedColours.onOverlay,
+                color = titleColour,
             )
         },
         navigationIcon = {

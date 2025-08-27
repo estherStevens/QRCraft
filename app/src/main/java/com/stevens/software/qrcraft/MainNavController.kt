@@ -5,6 +5,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.stevens.software.qrcraft.generate_qr.data_entry.QrDataEntryScreen
+import com.stevens.software.qrcraft.generate_qr.select_type.QrType
 import com.stevens.software.qrcraft.generate_qr.select_type.SelectQrCodeTypeScreen
 import com.stevens.software.qrcraft.qr_camera.CameraScreen
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
@@ -25,6 +27,9 @@ data class ScanResult(val qrCodeBitmapFilePath: String, val qrData: String): App
 
 @Serializable
 object AddQrChooseType: AppRoute
+
+@Serializable
+data class QrDataEntry(val qrType: QrType): AppRoute
 
 @Composable
 fun MainNavController(
@@ -63,7 +68,21 @@ fun MainNavController(
         }
         composable<AddQrChooseType> {
             SelectQrCodeTypeScreen(
-                viewModel = koinViewModel()
+                viewModel = koinViewModel(),
+                onNavigateToDataEntry = { navController.navigate(QrDataEntry(it)) }
+            )
+        }
+        composable<QrDataEntry> { backStackEntry ->
+            val routeArgs = backStackEntry.toRoute<QrDataEntry>()
+            QrDataEntryScreen(
+                viewModel = koinViewModel(
+                    parameters = {
+                        parametersOf(
+                            routeArgs.qrType
+                        )
+                    }
+                ),
+//                onNavigateToDataEntry = { navController.navigate(QrDataEntry(it)) }
             )
         }
     }

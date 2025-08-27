@@ -34,4 +34,8 @@
     <string name="create_qr_phone_number">Phone Number</string>
     <string name="create_qr_geolocation">Geolocation</string>
     <string name="create_qr_wifi">Wi-Fi</string>
+    <string name="create_qr_text_placeholder">Text</string>
+    <string name="generate_qr">Generate QR-Code</string>
+
+
 </resources>

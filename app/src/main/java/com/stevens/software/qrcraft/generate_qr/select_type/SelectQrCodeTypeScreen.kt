@@ -1,6 +1,7 @@
 package com.stevens.software.qrcraft.generate_qr.select_type
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,17 +35,20 @@ import com.stevens.software.qrcraft.ui.theme.extendedColours
 
 @Composable
 fun SelectQrCodeTypeScreen(
-    viewModel: SelectQrCodeTypeViewModel
+    viewModel: SelectQrCodeTypeViewModel,
+    onNavigateToDataEntry: (QrType) -> Unit,
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     SelectQrCodeTypeView(
-        qrCodeTypes = uiState.value.qrTypes
+        qrCodeTypes = uiState.value.qrCodeTypes,
+        onNavigateToDataEntry = onNavigateToDataEntry
     )
 }
 
 @Composable
 private fun SelectQrCodeTypeView(
-    qrCodeTypes: List<QrType>
+    qrCodeTypes: List<QrCodeType>,
+    onNavigateToDataEntry: (QrType) -> Unit
 ){
     Column(
         modifier = Modifier
@@ -71,7 +75,9 @@ private fun SelectQrCodeTypeView(
         ) {
             items(qrCodeTypes) {
                 QrTypeBox(
-                    it.drawable, it.text
+                    drawable = it.drawable,
+                    text = it.text,
+                    onQrTypeSelected = { onNavigateToDataEntry(it.qrType) }
                 )
             }
 
@@ -81,7 +87,8 @@ private fun SelectQrCodeTypeView(
 @Composable
 private fun QrTypeBox(
     drawable: Int,
-    text: Int
+    text: Int,
+    onQrTypeSelected: () -> Unit
 ){
     Box(
         modifier = Modifier
@@ -89,7 +96,8 @@ private fun QrTypeBox(
             .background(
                 color = MaterialTheme.extendedColours.surfaceHigher,
                 shape = RoundedCornerShape(16.dp)
-            ),
+            )
+            .clickable(enabled = true, onClick = onQrTypeSelected),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -116,14 +124,15 @@ private fun QrTypeBox(
 fun SelectQrCodeTypeScreenPreview(){
     QRCraftTheme {
         SelectQrCodeTypeView(
-            buildList {
-                add(QrType(drawable = R.drawable.text_qr_type_icon, text = R.string.qr_type_text))
-                add(QrType(drawable = R.drawable.link_qr_type_icon, text = R.string.qr_type_link))
-                add(QrType(drawable = R.drawable.contact_details_qr_type_icon, text = R.string.qr_type_contact_details))
-                add(QrType(drawable = R.drawable.phone_number_qr_type_icon, text = R.string.qr_type_phone_number))
-                add(QrType(drawable = R.drawable.geolocation_qr_type_icon, text = R.string.qr_type_geolocation))
-                add(QrType(drawable = R.drawable.wifi_qr_type_icon, text = R.string.qr_type_wifi))
-            }
+            qrCodeTypes = buildList {
+                add(QrCodeType(qrType = QrType.TEXT, drawable = R.drawable.text_qr_type_icon, text = R.string.qr_type_text))
+                add(QrCodeType(qrType = QrType.LINK, drawable = R.drawable.link_qr_type_icon, text = R.string.qr_type_link))
+                add(QrCodeType(qrType = QrType.CONTACT, drawable = R.drawable.contact_details_qr_type_icon, text = R.string.qr_type_contact_details))
+                add(QrCodeType(qrType = QrType.PHONE_NUMBER, drawable = R.drawable.phone_number_qr_type_icon, text = R.string.qr_type_phone_number))
+                add(QrCodeType(qrType = QrType.GEOLOCATION, drawable = R.drawable.geolocation_qr_type_icon, text = R.string.qr_type_geolocation))
+                add(QrCodeType(qrType = QrType.WIFI, drawable = R.drawable.wifi_qr_type_icon, text = R.string.qr_type_wifi))
+            },
+            onNavigateToDataEntry = {}
         )
     }
 }
