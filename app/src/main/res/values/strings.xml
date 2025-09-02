@@ -35,6 +35,15 @@
     <string name="create_qr_geolocation">Geolocation</string>
     <string name="create_qr_wifi">Wi-Fi</string>
     <string name="create_qr_text_placeholder">Text</string>
+    <string name="create_qr_ssid_placeholder">SSID</string>
+    <string name="create_qr_password_placeholder">Password</string>
+    <string name="create_qr_encryption_type_placeholder">Encryption Type</string>
+    <string name="create_qr_phone_number_placeholder">Phone Number</string>
+    <string name="create_qr_link_placeholder">URL</string>
+    <string name="create_qr_latitude_placeholder">Latitude</string>
+    <string name="create_qr_longitude_placeholder">Longitude</string>
+    <string name="create_qr_name_placeholder">Name</string>
+    <string name="create_qr_email_placeholder">Email</string>
     <string name="generate_qr">Generate QR-Code</string>
 
 

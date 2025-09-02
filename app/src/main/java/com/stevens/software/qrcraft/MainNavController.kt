@@ -82,7 +82,9 @@ fun MainNavController(
                         )
                     }
                 ),
-//                onNavigateToDataEntry = { navController.navigate(QrDataEntry(it)) }
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
             )
         }
     }
