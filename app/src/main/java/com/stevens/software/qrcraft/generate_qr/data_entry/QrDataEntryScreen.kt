@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -25,20 +26,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stevens.software.qrcraft.R
-import com.stevens.software.qrcraft.generate_qr.select_type.QrCodeType
-import com.stevens.software.qrcraft.generate_qr.select_type.QrType
-import com.stevens.software.qrcraft.generate_qr.select_type.SelectQrCodeTypeViewModel
+import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
-import com.stevens.software.qrcraft.ui.theme.Text
 import com.stevens.software.qrcraft.ui.theme.extendedColours
 import com.stevens.software.qrcraft.ui.toolkit.TopNavBar
 
 @Composable
 fun QrDataEntryScreen(
     viewModel: QrDataEntryViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToPreviewQr: (String, QrCodeData?) -> Unit
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvents.collect { event ->
+            when(event){
+                QrDataEntryNavigationEvents.NavigateBack -> onNavigateBack
+                is QrDataEntryNavigationEvents.NavigateToPreviewQrScreen -> {
+                    onNavigateToPreviewQr(
+                        event.qrCodeBitmapFilePath,
+                        event.qrData
+                    )
+                }
+            }
+        }
+    }
 
     when {
         uiState.value.isError -> onNavigateBack()
@@ -47,13 +60,9 @@ fun QrDataEntryScreen(
             QrDataEntryView(
                 screenTitle = uiState.value.screenTitle,
                 qrTypeDataEntry = uiState.value.qrData!!,
-                onValueChange = { value ->
-                    viewModel.onFieldChange(value)
-                },
-                onGenerateQrCode = {
-                    viewModel.generateQrCode()
-                },
-                onNavigateBack = onNavigateBack
+                onValueChange = viewModel::onFieldChange,
+                onGenerateQrCode = viewModel::generateQrCode,
+                onNavigateBack = viewModel::onNavigateBack
             )
         }
     }
@@ -427,6 +436,7 @@ fun PhoneNumberPreview(){
         )
     }
 }
+//todo - move all previews into PreviewParameters
 
 
 

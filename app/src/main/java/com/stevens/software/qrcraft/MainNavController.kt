@@ -6,11 +6,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.stevens.software.qrcraft.generate_qr.data_entry.QrDataEntryScreen
+import com.stevens.software.qrcraft.generate_qr.qr_result.PreviewQrScreen
 import com.stevens.software.qrcraft.generate_qr.select_type.QrType
 import com.stevens.software.qrcraft.generate_qr.select_type.SelectQrCodeTypeScreen
 import com.stevens.software.qrcraft.qr_camera.CameraScreen
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
-import com.stevens.software.qrcraft.qr_result.QrResultScreen
+import com.stevens.software.qrcraft.scanned_qr_result.QrResultScreen
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
@@ -30,6 +31,9 @@ object AddQrChooseType: AppRoute
 
 @Serializable
 data class QrDataEntry(val qrType: QrType): AppRoute
+
+@Serializable
+data class GeneratedQrResult(val qrCodeBitmapFilePath: String, val qrData: String): AppRoute
 
 @Composable
 fun MainNavController(
@@ -79,6 +83,26 @@ fun MainNavController(
                     parameters = {
                         parametersOf(
                             routeArgs.qrType
+                        )
+                    }
+                ),
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onNavigateToPreviewQr = { qrCodeBitmapFilePath, qrData ->
+                    val qrJsonString = Json.encodeToString<QrCodeData?>(qrData)
+                    navController.navigate(GeneratedQrResult(qrCodeBitmapFilePath, qrJsonString))
+                }
+            )
+        }
+        composable<GeneratedQrResult> { backStackEntry ->
+            val routeArgs = backStackEntry.toRoute<GeneratedQrResult>()
+            PreviewQrScreen(
+                viewModel = koinViewModel(
+                    parameters = {
+                        parametersOf(
+                            routeArgs.qrData,
+                            routeArgs.qrCodeBitmapFilePath
                         )
                     }
                 ),

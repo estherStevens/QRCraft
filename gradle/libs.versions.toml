@@ -17,6 +17,7 @@ camera_compose = "1.5.0-beta02"
 compose_nav = "2.9.3"
 kotlin_serialization = "1.8.0"
 kotlin_serialization_plugin = "2.2.10"
+zxing_core = "3.5.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -45,6 +46,8 @@ camera-extensions =  { group = "androidx.camera", name = "camera-extensions",  v
 camera-compose =  { group = "androidx.camera", name = "camera-compose",  version.ref = "camera_compose"}
 compose_navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "compose_nav" }
 kotlin-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlin_serialization" }
+google-zxing = { group = "com.google.zxing", name = "core", version.ref = "zxing_core" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

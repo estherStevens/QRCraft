@@ -23,22 +23,62 @@ import java.time.OffsetDateTime
 import androidx.core.graphics.scale
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.qr_camera.data.mapToQrCodeData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlin.math.max
 
-
-class QrCodeAnalyzer(
-    private val context: Context,
-    private val onQrCodeScanned: (String, QrCodeData?) -> Unit,
-    private val onQrCodeDetected: () -> Unit,
-): ImageAnalysis.Analyzer {
+class BitmapAnalyzer(val context: Context){
 
     private val scanner = BarcodeScanning.getClient(
         BarcodeScannerOptions.Builder()
             .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
             .build()
     )
+    fun analyzeFromBitmap(bitmap: Bitmap, onResult: (Pair<String, QrCodeData?>) -> Unit) {
+        scanner.process(InputImage.fromBitmap(bitmap, 0))
+            .addOnSuccessListener { qrCodes ->
+                var localBitmapPath = ""
+                var localQrCodeData: QrCodeData? = null
+                if (qrCodes.isNotEmpty()) {
+                    qrCodes.forEach {
+                        val rawValue = it.rawValue
+                        if (rawValue.isNullOrBlank().not()) {
+                            localBitmapPath = saveBitmapToCache(context, bitmap)
+                            localQrCodeData = it.mapToQrCodeData()
+                            // Assuming you only want the first valid one for simplicity
+                            onResult(localBitmapPath to localQrCodeData)
+                            return@addOnSuccessListener // Exit after finding the first one
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                onResult("" to null)
+            }
+    }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
+    private fun saveBitmapToCache(context: Context, bitmap: Bitmap?): String {
+        val file = File(context.cacheDir, OffsetDateTime.now().toString())
+        file.outputStream().use { outputStream ->
+            bitmap?.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+        }
+        return file.path
+    }
+}
+
+class QrCodeAnalyzer(
+    private val context: Context,
+    private val onQrCodeScanned: (String, QrCodeData?) -> Unit,
+    private val onQrCodeDetected: () -> Unit,
+): ImageAnalysis.Analyzer {
+    private val scanner = BarcodeScanning.getClient(
+        BarcodeScannerOptions.Builder()
+            .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+            .build()
+    )
+
     @OptIn(ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {
         val mediaImage = imageProxy.image
@@ -93,7 +133,6 @@ class QrCodeAnalyzer(
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun saveBitmapToCache(context: Context, bitmap: Bitmap?): String {
         val file = File(context.cacheDir, OffsetDateTime.now().toString())
         file.outputStream().use { outputStream ->

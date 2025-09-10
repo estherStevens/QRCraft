@@ -4,33 +4,46 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stevens.software.qrcraft.R
 import com.stevens.software.qrcraft.generate_qr.select_type.QrType
+import com.stevens.software.qrcraft.qr_camera.BitmapAnalyzer
+import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class QrDataEntryViewModel(
-    qrCodeType: QrType?
+    qrCodeType: QrType?,
+    private val qrGeneratorRepository: QrGeneratorRepository,
+    private val qrCodeAnalyzer: BitmapAnalyzer
 ): ViewModel() {
 
     private val _isError: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
     private val _qrData: MutableStateFlow<QrData?> = MutableStateFlow(null)
 
-    val uiState: StateFlow<QrDataEntryUiState> = combine(_qrData, _isLoading, _isError)
+    private val _navigationEvents: MutableSharedFlow<QrDataEntryNavigationEvents> = MutableSharedFlow()
+    val navigationEvents = _navigationEvents.asSharedFlow()
+
+    val uiState: StateFlow<QrDataEntryUiState> = combine(
+        _qrData,
+        _isLoading,
+        _isError)
     { qrData, isLoading, isError ->
         QrDataEntryUiState(
             screenTitle = qrData?.setScreenTitle() ?: 0,
             qrData = qrData,
             isLoading = isLoading,
-            isError = isError
+            isError = isError,
         )
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
-        QrDataEntryUiState(screenTitle = 0,  qrData = null, isLoading = true, isError = false)
+        QrDataEntryUiState(screenTitle = 0, qrData = null, isLoading = true, isError = false)
     )
 
     init {
@@ -42,6 +55,12 @@ class QrDataEntryViewModel(
             _isLoading.update { false }
         }
 
+    }
+
+    fun onNavigateBack() {
+        viewModelScope.launch {
+            _navigationEvents.emit(QrDataEntryNavigationEvents.NavigateBack)
+        }
     }
 
     fun onFieldChange(value: QrTypeFieldChange){
@@ -66,14 +85,26 @@ class QrDataEntryViewModel(
     fun generateQrCode() {
         uiState.value.qrData?.let {
             when(it){
-                is QrData.Contact -> {}
-                is QrData.Geolocation -> {}
-                is QrData.Link -> {}
-                is QrData.PhoneNumber -> {}
-                is QrData.Text -> {}
-                is QrData.Wifi -> {}
+                is QrData.Contact ->  createQrCode("${it.name}${it.email}${it.phoneNumber}")
+                is QrData.Geolocation -> createQrCode("${it.longitude}${it.latitude}")
+                is QrData.Link -> createQrCode(it.url)
+                is QrData.PhoneNumber -> createQrCode(it.phoneNumber)
+                is QrData.Text -> createQrCode(it.text)
+                is QrData.Wifi -> createQrCode("${it.ssid}${it.password}${it.encryptionType}}")
             }
         }
+    }
+
+
+    private fun createQrCode(qrData: String){
+        val bitmap = qrGeneratorRepository.createQrCode(qrData)
+
+        qrCodeAnalyzer.analyzeFromBitmap(bitmap, onResult = {
+            viewModelScope.launch {
+                _navigationEvents.emit(QrDataEntryNavigationEvents.NavigateToPreviewQrScreen(qrCodeBitmapFilePath = it.first, qrData = it.second))
+            }
+        })
+
     }
 
 
@@ -102,8 +133,13 @@ data class QrDataEntryUiState(
     val screenTitle: Int,
     val qrData: QrData?,
     val isLoading: Boolean,
-    val isError: Boolean
+    val isError: Boolean,
 )
+
+sealed class QrDataEntryNavigationEvents {
+    object NavigateBack : QrDataEntryNavigationEvents()
+    data class NavigateToPreviewQrScreen(val qrCodeBitmapFilePath: String, val qrData: QrCodeData?): QrDataEntryNavigationEvents()
+}
 
 sealed class QrData{
     data class Text(val text: String): QrData()

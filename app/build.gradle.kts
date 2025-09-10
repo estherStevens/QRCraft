@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.stevens.software.qrcraft"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.camera.compose)
     implementation(libs.compose.navigation)
     implementation(libs.kotlin.serialization)
+    implementation(libs.google.zxing)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
