@@ -23,8 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.stevens.software.qrcraft.QrDataEntry
 import com.stevens.software.qrcraft.R
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
@@ -341,104 +344,49 @@ private fun GenerateQrButton(
 }
 
 @Composable
-@Preview(showSystemUi = true)
-fun WifiPreview(){
-    QRCraftTheme {
-        QrDataEntryView(
-            screenTitle = R.string.create_qr_wifi,
-            qrTypeDataEntry = QrData.Wifi(
-                ssid = "",
-                password = "",
-                encryptionType = ""
-            ),
-            onValueChange = {},
-            onGenerateQrCode = {},
-            onNavigateBack = {})
-    }
-}
-
-@Composable
-@Preview(showSystemUi = true)
-fun ContactPreview(){
-    QRCraftTheme {
-        QrDataEntryView(
-            screenTitle = R.string.create_qr_contact,
-            qrTypeDataEntry = QrData.Contact(
-                name = "",
-                phoneNumber = "",
-                email = ""
-            ),
-            onValueChange = {},
-            onGenerateQrCode = {},
-            onNavigateBack = {})
-    }
-}
-
-@Composable
-@Preview(showSystemUi = true)
-fun GeolocationPreview(){
-    QRCraftTheme {
-        QrDataEntryView(
-            screenTitle = R.string.create_qr_geolocation,
-            qrTypeDataEntry = QrData.Geolocation(
-                longitude = "",
-                latitude = "",
-            ),
-            onValueChange = {},
-            onGenerateQrCode = {},
-            onNavigateBack = {})
-    }
-}
-
-@Composable
-@Preview(showSystemUi = true)
-fun TextPreview(){
-    QRCraftTheme {
-        QrDataEntryView(
-            screenTitle = R.string.create_qr_text,
-            qrTypeDataEntry = QrData.Text(
-                text = "",
-            ),
-            onValueChange = {},
-            onGenerateQrCode = {},
-            onNavigateBack = {})
-    }
-}
-
-@Composable
-@Preview(showSystemUi = true)
-fun LinkPreview(){
-    QRCraftTheme {
-        QrDataEntryView(
-            screenTitle = R.string.create_qr_link,
-            qrTypeDataEntry = QrData.Link(
-                url = "",
-            ),
-            onValueChange = {},
-            onGenerateQrCode = {},
-            onNavigateBack = {}
-        )
-    }
-}
-
-@Composable
-@Preview(showSystemUi = true)
-fun PhoneNumberPreview(){
+@Preview
+fun Preview(
+    @PreviewParameter(DataEntryPreviewParameterProvider::class) dataEntry: QrData
+){
     QRCraftTheme {
         QrDataEntryView(
             screenTitle = R.string.create_qr_phone_number,
-            qrTypeDataEntry = QrData.PhoneNumber(
-                phoneNumber = "",
-            ),
+            qrTypeDataEntry = dataEntry,
             onValueChange = {},
             onGenerateQrCode = {},
             onNavigateBack = {}
         )
     }
 }
-//todo - move all previews into PreviewParameters
 
 
+class DataEntryPreviewParameterProvider(): PreviewParameterProvider<QrData> {
+    override val values = sequenceOf(
+        QrData.PhoneNumber(
+            phoneNumber = "",
+        ),
+        QrData.Link(
+            url = "",
+        ),
+        QrData.Text(
+            text = "",
+        ),
+        QrData.Geolocation(
+            longitude = "",
+            latitude = "",
+        ),
+        QrData.Contact(
+            name = "",
+            phoneNumber = "",
+            email = ""
+        ),
+        QrData.Wifi(
+            ssid = "",
+            password = "",
+            encryptionType = ""
+        ),
+    )
+}
 
 
 
