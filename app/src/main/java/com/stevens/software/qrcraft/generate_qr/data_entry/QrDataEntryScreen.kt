@@ -38,7 +38,7 @@ import com.stevens.software.qrcraft.ui.toolkit.TopNavBar
 fun QrDataEntryScreen(
     viewModel: QrDataEntryViewModel,
     onNavigateBack: () -> Unit,
-    onNavigateToPreviewQr: (String, QrCodeData?) -> Unit
+    onNavigateToPreviewQr: (String) -> Unit
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -49,7 +49,6 @@ fun QrDataEntryScreen(
                 is QrDataEntryNavigationEvents.NavigateToPreviewQrScreen -> {
                     onNavigateToPreviewQr(
                         event.qrCodeBitmapFilePath,
-                        event.qrData
                     )
                 }
             }

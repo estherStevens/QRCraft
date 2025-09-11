@@ -33,7 +33,7 @@ object AddQrChooseType: AppRoute
 data class QrDataEntry(val qrType: QrType): AppRoute
 
 @Serializable
-data class GeneratedQrResult(val qrCodeBitmapFilePath: String, val qrData: String): AppRoute
+data class PreviewQr(val qrCodeBitmapFilePath: String): AppRoute
 
 @Composable
 fun MainNavController(
@@ -89,19 +89,17 @@ fun MainNavController(
                 onNavigateBack = {
                     navController.popBackStack()
                 },
-                onNavigateToPreviewQr = { qrCodeBitmapFilePath, qrData ->
-                    val qrJsonString = Json.encodeToString<QrCodeData?>(qrData)
-                    navController.navigate(GeneratedQrResult(qrCodeBitmapFilePath, qrJsonString))
+                onNavigateToPreviewQr = { qrCodeBitmapFilePath ->
+                    navController.navigate(PreviewQr(qrCodeBitmapFilePath))
                 }
             )
         }
-        composable<GeneratedQrResult> { backStackEntry ->
-            val routeArgs = backStackEntry.toRoute<GeneratedQrResult>()
+        composable<PreviewQr> { backStackEntry ->
+            val routeArgs = backStackEntry.toRoute<PreviewQr>()
             PreviewQrScreen(
                 viewModel = koinViewModel(
                     parameters = {
                         parametersOf(
-                            routeArgs.qrData,
                             routeArgs.qrCodeBitmapFilePath
                         )
                     }

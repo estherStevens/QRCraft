@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.stevens.software.qrcraft.qr_camera.BitmapAnalyzer
+import com.stevens.software.qrcraft.qr_camera.QrCodeAnalyzer
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.scanned_qr_result.data.QrDataParser
 import kotlinx.coroutines.Dispatchers
@@ -18,9 +20,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PreviewQrViewModel(
-    qrScanResult: String,
     qrCodeBitmapFilePath: String,
-    private val qrDataParser: QrDataParser,
+    private val bitmapAnalyzer: BitmapAnalyzer
 ) : ViewModel() {
 
     private val _qrBitmap: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
@@ -28,7 +29,7 @@ class PreviewQrViewModel(
 
     val uiState: StateFlow<GeneratedQrResultUiState> = combine(
         qrBitmap,
-        qrDataParser.qrData,
+        bitmapAnalyzer.qrCodeData,
     ) { bitmap, qrData ->
         if(bitmap != null){
             GeneratedQrResultUiState(
@@ -51,7 +52,6 @@ class PreviewQrViewModel(
     )
 
     init {
-        qrDataParser.parseQrData(qrScanResult)
         decodeBitmap(qrCodeBitmapFilePath)
     }
 
@@ -59,6 +59,7 @@ class PreviewQrViewModel(
         viewModelScope.launch {
             withContext(Dispatchers.IO){
                 val bitmap = BitmapFactory.decodeFile(qrCodeBitmapFilePath)
+                bitmapAnalyzer.extractDataFromQr(bitmap)
                 _qrBitmap.update { bitmap }
             }
         }

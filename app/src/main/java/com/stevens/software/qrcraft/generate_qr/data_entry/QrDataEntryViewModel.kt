@@ -98,10 +98,9 @@ class QrDataEntryViewModel(
 
     private fun createQrCode(qrData: String){
         val bitmap = qrGeneratorRepository.createQrCode(qrData)
-
-        qrCodeAnalyzer.analyzeFromBitmap(bitmap, onResult = {
+        qrCodeAnalyzer.saveQrBitmapToFile(bitmap, onResult = {
             viewModelScope.launch {
-                _navigationEvents.emit(QrDataEntryNavigationEvents.NavigateToPreviewQrScreen(qrCodeBitmapFilePath = it.first, qrData = it.second))
+                _navigationEvents.emit(QrDataEntryNavigationEvents.NavigateToPreviewQrScreen(qrCodeBitmapFilePath = it))
             }
         })
 
@@ -138,7 +137,7 @@ data class QrDataEntryUiState(
 
 sealed class QrDataEntryNavigationEvents {
     object NavigateBack : QrDataEntryNavigationEvents()
-    data class NavigateToPreviewQrScreen(val qrCodeBitmapFilePath: String, val qrData: QrCodeData?): QrDataEntryNavigationEvents()
+    data class NavigateToPreviewQrScreen(val qrCodeBitmapFilePath: String): QrDataEntryNavigationEvents()
 }
 
 sealed class QrData{

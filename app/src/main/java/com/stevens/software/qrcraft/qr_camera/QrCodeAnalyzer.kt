@@ -23,38 +23,56 @@ import java.time.OffsetDateTime
 import androidx.core.graphics.scale
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.qr_camera.data.mapToQrCodeData
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlin.math.max
 
 class BitmapAnalyzer(val context: Context){
+
+    private val _qrCodeData: MutableStateFlow<QrCodeData?> = MutableStateFlow(null)
+    val qrCodeData = _qrCodeData.asStateFlow()
+
+//    val qrBitmapFile : Flow<String> = flowOf()
 
     private val scanner = BarcodeScanning.getClient(
         BarcodeScannerOptions.Builder()
             .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
             .build()
     )
-    fun analyzeFromBitmap(bitmap: Bitmap, onResult: (Pair<String, QrCodeData?>) -> Unit) {
+
+    fun saveQrBitmapToFile(bitmap: Bitmap, onResult: (String) -> Unit) {
         scanner.process(InputImage.fromBitmap(bitmap, 0))
             .addOnSuccessListener { qrCodes ->
                 var localBitmapPath = ""
-                var localQrCodeData: QrCodeData? = null
                 if (qrCodes.isNotEmpty()) {
                     qrCodes.forEach {
                         val rawValue = it.rawValue
                         if (rawValue.isNullOrBlank().not()) {
                             localBitmapPath = saveBitmapToCache(context, bitmap)
-                            localQrCodeData = it.mapToQrCodeData()
-                            // Assuming you only want the first valid one for simplicity
-                            onResult(localBitmapPath to localQrCodeData)
-                            return@addOnSuccessListener // Exit after finding the first one
+                            onResult(localBitmapPath)
+                            return@addOnSuccessListener
                         }
                     }
                 }
             }
-            .addOnFailureListener { e ->
-                onResult("" to null)
+    }
+
+    fun extractDataFromQr(bitmap: Bitmap){
+        scanner.process(InputImage.fromBitmap(bitmap, 0))
+            .addOnSuccessListener { qrCodes ->
+                if (qrCodes.isNotEmpty()) {
+                    qrCodes.forEach {
+                        val rawValue = it.rawValue
+                        if (rawValue.isNullOrBlank().not()) {
+                            val qrCodeData = it.mapToQrCodeData()
+                            _qrCodeData.update { qrCodeData }
+                        }
+                    }
+                }
             }
     }
 
@@ -114,7 +132,6 @@ class QrCodeAnalyzer(
             imageProxy.close()
         }
     }
-
 
     private fun cropBitmap(qrCodeBitmap: Bitmap, barcode: Barcode): Bitmap? {
         val box = barcode.boundingBox ?: return null
