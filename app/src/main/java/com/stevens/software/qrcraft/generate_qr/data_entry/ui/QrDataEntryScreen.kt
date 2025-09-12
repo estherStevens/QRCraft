@@ -1,4 +1,4 @@
-package com.stevens.software.qrcraft.generate_qr.data_entry
+package com.stevens.software.qrcraft.generate_qr.data_entry.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -27,9 +27,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.stevens.software.qrcraft.QrDataEntry
 import com.stevens.software.qrcraft.R
-import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
 import com.stevens.software.qrcraft.ui.theme.extendedColours
 import com.stevens.software.qrcraft.ui.toolkit.TopNavBar

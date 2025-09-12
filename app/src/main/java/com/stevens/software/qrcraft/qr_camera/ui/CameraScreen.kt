@@ -1,4 +1,4 @@
-package com.stevens.software.qrcraft.qr_camera
+package com.stevens.software.qrcraft.qr_camera.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -58,7 +58,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stevens.software.qrcraft.R
-import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
+import com.stevens.software.qrcraft.qr_camera.QrCodeAnalyzer
 import com.stevens.software.qrcraft.ui.toolkit.CustomSnackBar
 import com.stevens.software.qrcraft.ui.toolkit.QRScannerOverlay
 
@@ -186,7 +186,7 @@ fun QRScannerView(
             QrCodeAnalyzer(
                 context = context,
                 onQrCodeDetected = onQrDetected,
-                onQrCodeScanned = { qrCodeBitmapFilePath->
+                onQrCodeScanned = { qrCodeBitmapFilePath ->
                     onQrScanned(qrCodeBitmapFilePath)
                 })
         )

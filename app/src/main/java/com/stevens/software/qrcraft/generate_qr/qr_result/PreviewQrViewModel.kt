@@ -5,17 +5,13 @@ import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stevens.software.qrcraft.qr_camera.BitmapAnalyzer
-import com.stevens.software.qrcraft.qr_camera.QrCodeAnalyzer
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
-import com.stevens.software.qrcraft.scanned_qr_result.data.QrDataParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 

@@ -1,11 +1,11 @@
-package com.stevens.software.qrcraft.generate_qr.data_entry
+package com.stevens.software.qrcraft.generate_qr.data_entry.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stevens.software.qrcraft.R
+import com.stevens.software.qrcraft.generate_qr.data_entry.data.QrGeneratorRepository
 import com.stevens.software.qrcraft.generate_qr.select_type.QrType
 import com.stevens.software.qrcraft.qr_camera.BitmapAnalyzer
-import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
