@@ -35,15 +35,15 @@ class QrDataEntryViewModel(
         _isError)
     { qrData, isLoading, isError ->
         QrDataEntryUiState(
-            screenTitle = qrData?.setScreenTitle() ?: 0,
             qrData = qrData,
             isLoading = isLoading,
             isError = isError,
+            isFormValid = qrData?.isInputValid() == true
         )
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
-        QrDataEntryUiState(screenTitle = 0, qrData = null, isLoading = true, isError = false)
+        QrDataEntryUiState(qrData = null, isLoading = true, isError = false, isFormValid = false)
     )
 
     init {
@@ -106,16 +106,18 @@ class QrDataEntryViewModel(
 
     }
 
-
-    private fun QrData.setScreenTitle() =
-        when(this) {
-            is QrData.Contact -> R.string.create_qr_contact
-            is QrData.Geolocation -> R.string.create_qr_geolocation
-            is QrData.Link -> R.string.create_qr_link
-            is QrData.PhoneNumber -> R.string.create_qr_phone_number
-            is QrData.Text -> R.string.create_qr_text
-            is QrData.Wifi -> R.string.create_qr_wifi
+    fun QrData?.isInputValid(): Boolean {
+        return when(this){
+            is QrData.Contact -> name.isNotBlank() && phoneNumber.isNotBlank() && email.isNotBlank()
+            is QrData.Geolocation -> longitude.isNotBlank() && latitude.isNotBlank()
+            is QrData.Link -> url.isNotBlank()
+            is QrData.PhoneNumber -> phoneNumber.isNotBlank()
+            is QrData.Text -> text.isNotBlank()
+            is QrData.Wifi -> ssid.isNotBlank() && encryptionType.isNotBlank() && password.isNotBlank()
+            else -> false
         }
+    }
+
 
     private fun QrType.setQrDataDefaultState() =
         when(this){
@@ -129,10 +131,10 @@ class QrDataEntryViewModel(
 }
 
 data class QrDataEntryUiState(
-    val screenTitle: Int,
     val qrData: QrData?,
     val isLoading: Boolean,
     val isError: Boolean,
+    val isFormValid: Boolean,
 )
 
 sealed class QrDataEntryNavigationEvents {

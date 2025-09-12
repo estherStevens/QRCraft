@@ -43,7 +43,9 @@ fun QrDataEntryScreen(
     LaunchedEffect(Unit) {
         viewModel.navigationEvents.collect { event ->
             when(event){
-                QrDataEntryNavigationEvents.NavigateBack -> onNavigateBack
+                QrDataEntryNavigationEvents.NavigateBack -> {
+                    onNavigateBack()
+                }
                 is QrDataEntryNavigationEvents.NavigateToPreviewQrScreen -> {
                     onNavigateToPreviewQr(
                         event.qrCodeBitmapFilePath,
@@ -58,8 +60,8 @@ fun QrDataEntryScreen(
         uiState.value.isLoading -> CircularProgressIndicator()
         else -> {
             QrDataEntryView(
-                screenTitle = uiState.value.screenTitle,
                 qrTypeDataEntry = uiState.value.qrData!!,
+                isFormValid = uiState.value.isFormValid,
                 onValueChange = viewModel::onFieldChange,
                 onGenerateQrCode = viewModel::generateQrCode,
                 onNavigateBack = viewModel::onNavigateBack
@@ -70,15 +72,15 @@ fun QrDataEntryScreen(
 }
 
 @Composable
-private fun QrDataEntryView(screenTitle: Int,
-                            qrTypeDataEntry: QrData,
+private fun QrDataEntryView(qrTypeDataEntry: QrData,
+                            isFormValid: Boolean,
                             onValueChange: (QrTypeFieldChange) -> Unit,
                             onGenerateQrCode: () -> Unit,
                             onNavigateBack: () -> Unit){
     Scaffold(
         topBar = {
             TopNavBar(
-                title = stringResource(screenTitle),
+                title = stringResource(qrTypeDataEntry.screenTitle()),
                 backgroundColor = MaterialTheme.colorScheme.surface,
                 iconColour = MaterialTheme.colorScheme.onSurface,
                 titleColour = MaterialTheme.colorScheme.onSurface,
@@ -146,7 +148,7 @@ private fun QrDataEntryView(screenTitle: Int,
                 }
                 Spacer(Modifier.size(16.dp))
                 GenerateQrButton(
-                    enabled = true,
+                    enabled = isFormValid,
                     onGenerateQrCode = onGenerateQrCode
                 )
             }
@@ -340,6 +342,16 @@ private fun GenerateQrButton(
     }
 }
 
+private fun QrData.screenTitle() =
+    when(this) {
+        is QrData.Contact -> R.string.create_qr_contact
+        is QrData.Geolocation -> R.string.create_qr_geolocation
+        is QrData.Link -> R.string.create_qr_link
+        is QrData.PhoneNumber -> R.string.create_qr_phone_number
+        is QrData.Text -> R.string.create_qr_text
+        is QrData.Wifi -> R.string.create_qr_wifi
+    }
+
 @Composable
 @Preview
 fun Preview(
@@ -347,8 +359,8 @@ fun Preview(
 ){
     QRCraftTheme {
         QrDataEntryView(
-            screenTitle = R.string.create_qr_phone_number,
             qrTypeDataEntry = dataEntry,
+            isFormValid = true,
             onValueChange = {},
             onGenerateQrCode = {},
             onNavigateBack = {}
