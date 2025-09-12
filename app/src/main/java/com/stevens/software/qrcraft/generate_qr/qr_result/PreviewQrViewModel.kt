@@ -25,30 +25,23 @@ class PreviewQrViewModel(
 ) : ViewModel() {
 
     private val _qrBitmap: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
-    private val qrBitmap = _qrBitmap.asStateFlow()
+    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    private val _qrData: MutableStateFlow<QrCodeData?> = MutableStateFlow(null)
 
     val uiState: StateFlow<GeneratedQrResultUiState> = combine(
-        qrBitmap,
-        bitmapAnalyzer.qrCodeData,
-    ) { bitmap, qrData ->
-        if(bitmap != null){
-            GeneratedQrResultUiState(
-                bitmap = bitmap,
-                qrData = qrData,
-                isError = false
-            )
-        } else {
-            GeneratedQrResultUiState(
-                bitmap = null,
-                qrData = null,
-                isError = true
-            )
-        }
-
+        _qrBitmap,
+        _qrData,
+        _isLoading
+    ) { bitmap, qrData, isLoading->
+        GeneratedQrResultUiState(
+            bitmap = bitmap,
+            qrData = qrData,
+            isLoading = false
+        )
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
-        GeneratedQrResultUiState(null, null, false)
+        GeneratedQrResultUiState(null, null, true)
     )
 
     init {
@@ -59,8 +52,10 @@ class PreviewQrViewModel(
         viewModelScope.launch {
             withContext(Dispatchers.IO){
                 val bitmap = BitmapFactory.decodeFile(qrCodeBitmapFilePath)
-                bitmapAnalyzer.extractDataFromQr(bitmap)
-                _qrBitmap.update { bitmap }
+                val qrData = bitmapAnalyzer.extractDataFromQr(bitmap)
+                _qrBitmap.emit(bitmap)
+                _qrData.emit(qrData)
+                _isLoading.emit(false)
             }
         }
 
@@ -70,5 +65,5 @@ class PreviewQrViewModel(
 data class GeneratedQrResultUiState(
     val bitmap: Bitmap?,
     val qrData: QrCodeData?,
-    val isError: Boolean
+    val isLoading: Boolean
 )

@@ -2,14 +2,20 @@ package com.stevens.software.qrcraft.scanned_qr_result
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -36,6 +42,7 @@ fun QrResultScreen(
 
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     QrResultView(
+        isLoading = uiState.value.isLoading,
         qrCodeBitmap = uiState.value.qrCodeBitmap,
         qrCodeData = uiState.value.qrDataType,
         onNavigateBack = onNavigateBack,
@@ -57,6 +64,7 @@ fun QrResultScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QrResultView(
+    isLoading: Boolean,
     qrCodeBitmap: Bitmap?,
     qrCodeData: QrCodeData?,
     onNavigateBack: () -> Unit,
@@ -80,13 +88,26 @@ fun QrResultView(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.onSurface)
-                .padding(top = 44.dp),
         ) {
-            QrInfo(
-                qrCodeData = qrCodeData,
-                onShare = onShare,
-                onCopyToClipboard = onCopyToClipboard)
-            QrImage(qrCodeBitmap)
+            when(isLoading){
+                true -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+
+                }
+                false -> {
+                    Spacer(Modifier.size(44.dp))
+                    QrInfo(
+                        qrCodeData = qrCodeData,
+                        onShare = onShare,
+                        onCopyToClipboard = onCopyToClipboard)
+                    QrImage(qrCodeBitmap)
+                }
+            }
         }
     }
 }
@@ -96,6 +117,7 @@ fun QrResultView(
 fun Preview() {
     QRCraftTheme {
         QrResultView(
+            isLoading = false,
             qrCodeBitmap = null,
             qrCodeData = QrCodeData.PlainText("Some Text Here"),
             onNavigateBack = {},

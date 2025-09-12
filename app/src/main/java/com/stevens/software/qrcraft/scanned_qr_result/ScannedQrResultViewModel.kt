@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.stevens.software.qrcraft.qr_camera.BitmapAnalyzer
+import com.stevens.software.qrcraft.qr_camera.QrCodeAnalyzer
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.scanned_qr_result.data.QrDataParser
 import kotlinx.coroutines.Dispatchers
@@ -17,26 +19,28 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class QrResultViewModel(
-    qrScanResult: String,
     qrCodeBitmapFilePath: String,
-    private val qrDataParser: QrDataParser
+    private val bitmapAnalyzer: BitmapAnalyzer
 ) : ViewModel() {
 
     private val _qrBitmap: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
     val qrBitmap = _qrBitmap.asStateFlow()
+    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    private val _qrData: MutableStateFlow<QrCodeData?> = MutableStateFlow(null)
 
     init {
-        qrDataParser.parseQrData(qrScanResult)
         decodeBitmap(qrCodeBitmapFilePath)
     }
 
     val uiState = combine(
-        qrDataParser.qrData,
-        qrBitmap
-    ) { qrType, qrBitmap ->
+        _qrData,
+        qrBitmap,
+        _isLoading
+    ) { qrType, qrBitmap, isLoading ->
         ScanResultUiState(
             qrCodeBitmap = qrBitmap,
             qrDataType = qrType,
+            isLoading = isLoading
         )
     }.stateIn(
         viewModelScope,
@@ -44,13 +48,14 @@ class QrResultViewModel(
         initialScanResultUiState()
     )
 
-    private fun decodeBitmap(qrCodeBitmapFilePath: String){ //todo move to use case
+    private fun decodeBitmap(qrCodeBitmapFilePath: String){
         viewModelScope.launch {
             withContext(Dispatchers.IO){
                 val bitmap = BitmapFactory.decodeFile(qrCodeBitmapFilePath)
-                _qrBitmap.update {
-                    bitmap
-                }
+                val qrData = bitmapAnalyzer.extractDataFromQr(bitmap)
+                _qrBitmap.emit(bitmap)
+                _qrData.emit(qrData)
+                _isLoading.emit(false)
             }
         }
     }
@@ -59,10 +64,12 @@ class QrResultViewModel(
         ScanResultUiState(
             qrCodeBitmap = null,
             qrDataType = null,
+            isLoading = true
         )
 }
 
 data class ScanResultUiState(
     val qrCodeBitmap: Bitmap?,
     val qrDataType: QrCodeData?,
+    val isLoading: Boolean,
 )

@@ -24,7 +24,7 @@ sealed interface AppRoute
 object QrCamera: AppRoute
 
 @Serializable
-data class ScanResult(val qrCodeBitmapFilePath: String, val qrData: String): AppRoute
+data class ScanResult(val qrCodeBitmapFilePath: String): AppRoute
 
 @Serializable
 object AddQrChooseType: AppRoute
@@ -43,10 +43,9 @@ fun MainNavController(
         composable<QrCamera>{
             CameraScreen(
                 viewModel = koinViewModel(),
-                onNavigateToScanResult = { qrCodeBitmapFilePath, qrData ->
-                    val qrJsonString = Json.encodeToString<QrCodeData?>(qrData)
+                onNavigateToScanResult = { qrCodeBitmapFilePath->
                     navController.navigate(
-                        ScanResult(qrCodeBitmapFilePath, qrJsonString)
+                        ScanResult(qrCodeBitmapFilePath)
                     )
                 }
             )
@@ -57,7 +56,6 @@ fun MainNavController(
                 viewModel = koinViewModel(
                     parameters = {
                         parametersOf(
-                            routeArgs.qrData,
                             routeArgs.qrCodeBitmapFilePath
                         )
                     }

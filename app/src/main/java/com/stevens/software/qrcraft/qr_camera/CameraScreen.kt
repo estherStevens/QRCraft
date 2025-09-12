@@ -66,7 +66,7 @@ import com.stevens.software.qrcraft.ui.toolkit.QRScannerOverlay
 @Composable
 fun CameraScreen(
     viewModel: CameraViewModel,
-    onNavigateToScanResult: (String, QrCodeData?) -> Unit
+    onNavigateToScanResult: (String) -> Unit
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -109,7 +109,7 @@ fun CameraScreen(
         viewModel.navigationEvents.collect { event ->
             when(event) {
                 is CameraNavigationEvents.OnNavigateToScanResult -> {
-                    onNavigateToScanResult(event.qrCodeBitmapFilePath, event.qrData)
+                    onNavigateToScanResult(event.qrCodeBitmapFilePath)
                 }
             }
         }
@@ -151,8 +151,8 @@ fun CameraScreen(
             if (launchCamera) {
                 QRScannerView(
                     isLoading = uiState.value.isLoading,
-                    onQrScanned = { qrCodeBitmapFilePath, qrData ->
-                        viewModel.onNavigateToScanResult(qrCodeBitmapFilePath, qrData)
+                    onQrScanned = { qrCodeBitmapFilePath ->
+                        viewModel.onNavigateToScanResult(qrCodeBitmapFilePath)
                     },
                     onQrDetected = {
                         viewModel.onQrCodeDetected()
@@ -166,7 +166,7 @@ fun CameraScreen(
 @Composable
 fun QRScannerView(
     isLoading: Boolean,
-    onQrScanned: (String, QrCodeData?) -> Unit,
+    onQrScanned: (String) -> Unit,
     onQrDetected: () -> Unit
 ) {
     val context = LocalContext.current
@@ -186,8 +186,8 @@ fun QRScannerView(
             QrCodeAnalyzer(
                 context = context,
                 onQrCodeDetected = onQrDetected,
-                onQrCodeScanned = { qrCodeBitmapFilePath, qrData ->
-                    onQrScanned(qrCodeBitmapFilePath, qrData)
+                onQrCodeScanned = { qrCodeBitmapFilePath->
+                    onQrScanned(qrCodeBitmapFilePath)
                 })
         )
     }

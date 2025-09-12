@@ -23,20 +23,18 @@ import java.time.OffsetDateTime
 import androidx.core.graphics.scale
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import com.stevens.software.qrcraft.qr_camera.data.mapToQrCodeData
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 import kotlin.math.max
 
 class BitmapAnalyzer(val context: Context){
-
-    private val _qrCodeData: MutableStateFlow<QrCodeData?> = MutableStateFlow(null)
-    val qrCodeData = _qrCodeData.asStateFlow()
-
-//    val qrBitmapFile : Flow<String> = flowOf()
 
     private val scanner = BarcodeScanning.getClient(
         BarcodeScannerOptions.Builder()
@@ -61,19 +59,29 @@ class BitmapAnalyzer(val context: Context){
             }
     }
 
-    fun extractDataFromQr(bitmap: Bitmap){
-        scanner.process(InputImage.fromBitmap(bitmap, 0))
-            .addOnSuccessListener { qrCodes ->
-                if (qrCodes.isNotEmpty()) {
-                    qrCodes.forEach {
-                        val rawValue = it.rawValue
-                        if (rawValue.isNullOrBlank().not()) {
-                            val qrCodeData = it.mapToQrCodeData()
-                            _qrCodeData.update { qrCodeData }
+    @kotlin.OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun extractDataFromQr(bitmap: Bitmap) : QrCodeData?{
+        return suspendCancellableCoroutine { continuation ->
+            scanner.process(InputImage.fromBitmap(bitmap, 0))
+                .addOnSuccessListener { qrCodes ->
+                    if (!continuation.isActive) return@addOnSuccessListener
+                    if (qrCodes.isNotEmpty()) {
+                        var qrCodeData: QrCodeData? = null
+                        qrCodes.forEach {
+                            val rawValue = it.rawValue
+                            if (rawValue.isNullOrBlank().not()) {
+                                qrCodeData = it.mapToQrCodeData()
+                            }
                         }
+                        continuation.resume(qrCodeData)
                     }
                 }
-            }
+                .addOnFailureListener {
+                    if(continuation.isActive) {
+                        continuation.resume(null)
+                    }
+                }
+        }
     }
 
 
@@ -88,7 +96,7 @@ class BitmapAnalyzer(val context: Context){
 
 class QrCodeAnalyzer(
     private val context: Context,
-    private val onQrCodeScanned: (String, QrCodeData?) -> Unit,
+    private val onQrCodeScanned: (String) -> Unit,
     private val onQrCodeDetected: () -> Unit,
 ): ImageAnalysis.Analyzer {
     private val scanner = BarcodeScanning.getClient(
@@ -104,7 +112,6 @@ class QrCodeAnalyzer(
             val inputImage =
                 InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
             var bitmapPath = ""
-            var qrCodeData: QrCodeData? = null
             var qrScannedSuccessfully = false
             scanner.process(inputImage)
                 .addOnSuccessListener { qrCode ->
@@ -115,8 +122,6 @@ class QrCodeAnalyzer(
                         if (rawValue.isNullOrBlank().not()) {
                             val bitmap = cropBitmap(imageProxy.toRotatedBitmap(), it)
                             bitmapPath = saveBitmapToCache(context, bitmap)
-                            qrCodeData = it.mapToQrCodeData()
-
                             qrScannedSuccessfully = true
                         }
                     }
@@ -125,7 +130,7 @@ class QrCodeAnalyzer(
                 .addOnCompleteListener {
                     imageProxy.close()
                     if (qrScannedSuccessfully) {
-                        onQrCodeScanned(bitmapPath, qrCodeData)
+                        onQrCodeScanned(bitmapPath)
                     }
                 }
         } else {

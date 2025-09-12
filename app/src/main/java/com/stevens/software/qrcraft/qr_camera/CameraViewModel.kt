@@ -45,10 +45,10 @@ class CameraViewModel(): ViewModel() {
         }
     }
 
-    fun onNavigateToScanResult(qrCodeBitmapFilePath: String, qrData: QrCodeData?){
+    fun onNavigateToScanResult(qrCodeBitmapFilePath: String){
         viewModelScope.launch {
             _isLoading.emit(false)
-            _navigationEvents.emit(CameraNavigationEvents.OnNavigateToScanResult(qrCodeBitmapFilePath, qrData))
+            _navigationEvents.emit(CameraNavigationEvents.OnNavigateToScanResult(qrCodeBitmapFilePath))
         }
     }
 }
@@ -58,5 +58,5 @@ data class QrCameraUiState(
 )
 
 sealed interface CameraNavigationEvents{
-    data class OnNavigateToScanResult(val qrCodeBitmapFilePath: String, val qrData: QrCodeData?) : CameraNavigationEvents
+    data class OnNavigateToScanResult(val qrCodeBitmapFilePath: String) : CameraNavigationEvents
 }
