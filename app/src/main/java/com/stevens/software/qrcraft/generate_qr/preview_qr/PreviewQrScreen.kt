@@ -6,12 +6,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
@@ -65,9 +68,18 @@ fun PreviewQrView(
             TopNavBar(
                 title = stringResource(R.string.scan_result),
                 backgroundColor = MaterialTheme.colorScheme.onSurface,
-                iconColour = MaterialTheme.extendedColours.onOverlay,
                 titleColour = MaterialTheme.extendedColours.onOverlay,
-                onNavigateBack = onNavigateBack
+                navigationIcon = {
+                    IconButton(
+                        onClick = onNavigateBack
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.back_icon),
+                            tint = MaterialTheme.extendedColours.onOverlay,
+                            contentDescription = stringResource(R.string.back)
+                        )
+                    }
+                }
             )
         }
     ) { paddingValues ->

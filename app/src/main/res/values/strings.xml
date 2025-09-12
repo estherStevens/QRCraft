@@ -8,7 +8,7 @@
     <string name="qr_overlay_text">Point your camera at a QR code</string>
     <string name="qr_detected_loading">Loading…</string>
     <string name="scan_result">Scan Result</string>
-    <string name="back">Text</string>
+    <string name="back">Back</string>
     <string name="qr_type_text">Text</string>
     <string name="qr_type_link">Link</string>
     <string name="qr_type_contact_details">Contact</string>
@@ -45,6 +45,8 @@
     <string name="create_qr_name_placeholder">Name</string>
     <string name="create_qr_email_placeholder">Email</string>
     <string name="generate_qr">Generate QR-Code</string>
+    <string name="scan_history_title">Scan History</string>
+    <string name="scan_history_empty">History is empty</string>
 
 
 </resources>

@@ -19,9 +19,8 @@ import com.stevens.software.qrcraft.ui.theme.extendedColours
 fun TopNavBar(
     title: String,
     backgroundColor: Color,
-    iconColour: Color,
     titleColour: Color,
-    onNavigateBack: () -> Unit,
+    navigationIcon: @Composable () -> Unit = {},
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -31,17 +30,7 @@ fun TopNavBar(
                 color = titleColour,
             )
         },
-        navigationIcon = {
-            IconButton(
-                onClick = onNavigateBack
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.back_icon),
-                    tint = iconColour,
-                    contentDescription = stringResource(R.string.back)
-                )
-            }
-        },
+        navigationIcon = navigationIcon,
         colors = TopAppBarDefaults.topAppBarColors().copy(
             containerColor = backgroundColor
         )
