@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.stevens.software.qrcraft.AddQrChooseType
 import com.stevens.software.qrcraft.AppRoute
+import com.stevens.software.qrcraft.QrHistory
 import com.stevens.software.qrcraft.R
 import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
 import com.stevens.software.qrcraft.ui.theme.extendedColours
@@ -33,7 +34,8 @@ fun BottomNavigationBar(
     currentRoute: String?,
     modifier: Modifier = Modifier,
     onNavigateToAddQrCode: () -> Unit,
-    onNavigateToScanQrCode: () -> Unit
+    onNavigateToScanQrCode: () -> Unit,
+    onNavigateToQrHistory: () -> Unit
 ) {
     val selectedItemColour = IconButtonDefaults.iconButtonColors(MaterialTheme.colorScheme.primary.copy(0.3F))
     Box(
@@ -59,8 +61,12 @@ fun BottomNavigationBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
-                onClick = {},
-                modifier = Modifier.padding(4.dp)
+                onClick = onNavigateToQrHistory,
+                modifier = Modifier.padding(4.dp),
+                colors = when(currentRoute == QrHistory::class.qualifiedName){
+                    true -> selectedItemColour
+                    false -> IconButtonDefaults.iconButtonColors()
+                }
             ) {
                 Icon(
                     painter = painterResource(R.drawable.history_icon),
@@ -118,7 +124,8 @@ fun BottomNavigationBarPreview() {
         BottomNavigationBar(
             currentRoute = "AddQrChooseType",
             onNavigateToAddQrCode = {},
-            onNavigateToScanQrCode = {}
+            onNavigateToScanQrCode = {},
+            onNavigateToQrHistory = {}
         )
     }
 }

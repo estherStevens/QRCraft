@@ -10,6 +10,7 @@ import com.stevens.software.qrcraft.generate_qr.preview_qr.PreviewQrScreen
 import com.stevens.software.qrcraft.generate_qr.select_type.QrType
 import com.stevens.software.qrcraft.generate_qr.select_type.SelectQrCodeTypeScreen
 import com.stevens.software.qrcraft.qr_camera.ui.CameraScreen
+import com.stevens.software.qrcraft.qr_history.QrHistoryScreen
 import com.stevens.software.qrcraft.scanned_qr_result.QrResultScreen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
@@ -32,6 +33,10 @@ data class QrDataEntry(val qrType: QrType): AppRoute
 
 @Serializable
 data class PreviewQr(val qrCodeBitmapFilePath: String): AppRoute
+
+@Serializable
+object QrHistory: AppRoute
+
 
 @Composable
 fun MainNavController(
@@ -103,6 +108,11 @@ fun MainNavController(
                 onNavigateBack = {
                     navController.popBackStack()
                 }
+            )
+        }
+        composable<QrHistory> {
+            QrHistoryScreen(
+
             )
         }
     }

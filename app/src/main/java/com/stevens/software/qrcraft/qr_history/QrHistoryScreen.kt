@@ -1,4 +1,4 @@
-package com.stevens.software.qrcraft.scan_history
+package com.stevens.software.qrcraft.qr_history
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -16,10 +16,9 @@ import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
 import com.stevens.software.qrcraft.ui.toolkit.TopNavBar
 import com.stevens.software.qrcraft.R
 import com.stevens.software.qrcraft.ui.theme.extendedColours
-import com.stevens.software.qrcraft.ui.theme.suseFontFamily
 
 @Composable
-fun ScanHistoryScreen() {
+fun QrHistoryScreen() {
     Scaffold(
         topBar = {
             TopNavBar(
@@ -57,6 +56,6 @@ private fun EmptyState(){
 @Preview
 fun ScanHistoryScreenPreview(){
     QRCraftTheme {
-        ScanHistoryScreen()
+        QrHistoryScreen()
     }
 }

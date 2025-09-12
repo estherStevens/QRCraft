@@ -52,7 +52,8 @@ class MainActivity : ComponentActivity() {
                             BottomNavigationBar(
                                 currentRoute = currentDestination,
                                 onNavigateToAddQrCode = { navController.navigate(AddQrChooseType) },
-                                onNavigateToScanQrCode = { navController.navigate(QrCamera) }
+                                onNavigateToScanQrCode = { navController.navigate(QrCamera) },
+                                onNavigateToQrHistory = { navController.navigate(QrHistory) }
                             )
                         }
                     }
