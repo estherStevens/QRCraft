@@ -5,16 +5,21 @@ import androidx.core.graphics.createBitmap
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import androidx.core.graphics.set
+import com.google.zxing.EncodeHintType
 import com.google.zxing.common.BitMatrix
+import java.util.EnumMap
 
 class QrGeneratorRepository {
 
     fun createQrCode(qrData: String) : Bitmap {
+        val hints = EnumMap<EncodeHintType, Any>(EncodeHintType::class.java)
+        hints[EncodeHintType.MARGIN] = 1
         val bitMatrix = MultiFormatWriter().encode(
             qrData,
             BarcodeFormat.QR_CODE,
-            200,
-            200
+            300,
+            300,
+            hints
         )
         return bitMatrix.toBitmap()
     }
