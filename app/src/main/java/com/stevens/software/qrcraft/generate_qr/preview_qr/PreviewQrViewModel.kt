@@ -1,4 +1,4 @@
-package com.stevens.software.qrcraft.generate_qr.qr_result
+package com.stevens.software.qrcraft.generate_qr.preview_qr
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

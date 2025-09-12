@@ -3,7 +3,7 @@ package com.stevens.software.qrcraft.di
 import com.stevens.software.qrcraft.generate_qr.data_entry.ui.QrDataEntryViewModel
 import com.stevens.software.qrcraft.generate_qr.data_entry.data.QrGeneratorRepository
 import com.stevens.software.qrcraft.generate_qr.data_entry.data.QrGeneratorRepositoryImpl
-import com.stevens.software.qrcraft.generate_qr.qr_result.PreviewQrViewModel
+import com.stevens.software.qrcraft.generate_qr.preview_qr.PreviewQrViewModel
 import com.stevens.software.qrcraft.generate_qr.select_type.SelectQrCodeTypeViewModel
 import com.stevens.software.qrcraft.qr_camera.BitmapAnalyzer
 import com.stevens.software.qrcraft.qr_camera.ui.CameraViewModel

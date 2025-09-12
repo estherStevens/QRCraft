@@ -6,7 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.stevens.software.qrcraft.generate_qr.data_entry.ui.QrDataEntryScreen
-import com.stevens.software.qrcraft.generate_qr.qr_result.PreviewQrScreen
+import com.stevens.software.qrcraft.generate_qr.preview_qr.PreviewQrScreen
 import com.stevens.software.qrcraft.generate_qr.select_type.QrType
 import com.stevens.software.qrcraft.generate_qr.select_type.SelectQrCodeTypeScreen
 import com.stevens.software.qrcraft.qr_camera.ui.CameraScreen
