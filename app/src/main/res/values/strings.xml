@@ -47,6 +47,8 @@
     <string name="generate_qr">Generate QR-Code</string>
     <string name="scan_history_title">Scan History</string>
     <string name="scan_history_empty">History is empty</string>
+    <string name="scan_history_scanned">Scanned</string>
+    <string name="scan_history_generated">Generated</string>
 
 
 </resources>
