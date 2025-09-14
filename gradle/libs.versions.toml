@@ -18,6 +18,8 @@ compose_nav = "2.9.3"
 kotlin_serialization = "1.8.0"
 kotlin_serialization_plugin = "2.2.10"
 zxing_core = "3.5.1"
+room = "2.8.0"
+ksp = "2.2.20-2.0.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +49,9 @@ camera-compose =  { group = "androidx.camera", name = "camera-compose",  version
 compose_navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "compose_nav" }
 kotlin-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlin_serialization" }
 google-zxing = { group = "com.google.zxing", name = "core", version.ref = "zxing_core" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 
 
 [plugins]
@@ -55,3 +60,4 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialize = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin_serialization_plugin" }
 kotlin-parcelize = { id = "kotlin-parcelize" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

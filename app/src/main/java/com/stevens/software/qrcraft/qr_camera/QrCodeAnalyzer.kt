@@ -50,7 +50,7 @@ class BitmapAnalyzer(val context: Context){
     }
 
     @kotlin.OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun extractDataFromQr(bitmap: Bitmap) : QrCodeData?{
+    suspend fun extractDataFromQr(bitmap: Bitmap) : QrCodeData? {
         return suspendCancellableCoroutine { continuation ->
             scanner.process(InputImage.fromBitmap(bitmap, 0))
                 .addOnSuccessListener { qrCodes ->

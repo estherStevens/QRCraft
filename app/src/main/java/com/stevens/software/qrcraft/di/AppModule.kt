@@ -1,5 +1,6 @@
 package com.stevens.software.qrcraft.di
 
+import com.stevens.software.qrcraft.db.QrCodeRepository
 import com.stevens.software.qrcraft.generate_qr.data_entry.ui.QrDataEntryViewModel
 import com.stevens.software.qrcraft.generate_qr.data_entry.data.QrGeneratorRepository
 import com.stevens.software.qrcraft.generate_qr.data_entry.data.QrGeneratorRepositoryImpl
@@ -21,4 +22,5 @@ val appModule = module {
     viewModelOf(::PreviewQrViewModel)
     factoryOf(::QrGeneratorRepositoryImpl) bind QrGeneratorRepository::class
     factoryOf(::BitmapAnalyzer)
+    factoryOf(::QrCodeRepository)
 }

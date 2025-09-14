@@ -4,6 +4,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.stevens.software.qrcraft.db.QrCode
+import com.stevens.software.qrcraft.db.QrCodeRepository
+import com.stevens.software.qrcraft.generate_qr.data_entry.ui.QrData
 import com.stevens.software.qrcraft.qr_camera.BitmapAnalyzer
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +17,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.OffsetDateTime
 
 class PreviewQrViewModel(
     qrCodeBitmapFilePath: String,
