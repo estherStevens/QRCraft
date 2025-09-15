@@ -21,3 +21,10 @@ dependencyResolutionManagement {
 
 rootProject.name = "QRCraft"
 include(":app")
+include(":core")
+include(":uitoolkit")
+include(":history")
+include(":scanner")
+include(":generator")
+include(":result")
+include(":analyzer")

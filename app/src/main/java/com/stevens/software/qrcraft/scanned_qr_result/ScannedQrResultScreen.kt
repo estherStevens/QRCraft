@@ -25,13 +25,13 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.stevens.software.qrcraft.R
-import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
-import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
-import com.stevens.software.qrcraft.ui.theme.extendedColours
-import com.stevens.software.qrcraft.ui.toolkit.QrImage
-import com.stevens.software.qrcraft.ui.toolkit.QrInfo
-import com.stevens.software.qrcraft.ui.toolkit.TopNavBar
+import com.stevens.software.uitoolkit.R
+import com.stevens.software.analyzer.QrCodeData
+import com.stevens.software.result.ui.QrImage
+import com.stevens.software.result.ui.QrInfo
+import com.stevens.software.uitoolkit.theme.QRCraftTheme
+import com.stevens.software.uitoolkit.theme.extendedColours
+import com.stevens.software.uitoolkit.toolkit.TopNavBar
 
 @Composable
 fun QrResultScreen(
@@ -44,8 +44,8 @@ fun QrResultScreen(
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     QrResultView(
         isLoading = uiState.value.isLoading,
-        qrCodeBitmap = uiState.value.qrCodeBitmap,
-        qrCodeData = uiState.value.qrDataType,
+        qrCodeBitmap = uiState.value.bitmap,
+        qrCodeData = uiState.value.qrData,
         onNavigateBack = onNavigateBack,
         onShare = {
             val sendIntent = Intent().apply {
@@ -129,7 +129,7 @@ fun Preview() {
         QrResultView(
             isLoading = false,
             qrCodeBitmap = null,
-            qrCodeData = QrCodeData.PlainText("Some Text Here"),
+            qrCodeData = QrCodeData.PlainText(qrBitmapPath = "", text = "Some Text Here"),
             onNavigateBack = {},
             onShare = {},
             onCopyToClipboard = {}

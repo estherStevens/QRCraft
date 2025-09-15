@@ -1,10 +1,11 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialize)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.ksp)
 }
 
 android {
@@ -43,6 +44,13 @@ android {
 }
 
 dependencies {
+    implementation(project(":core"))
+    implementation(project(":uitoolkit"))
+    implementation(project(":history"))
+    implementation(project(":generator"))
+    implementation(project(":result"))
+    implementation(project(":scanner"))
+    implementation(project(":analyzer"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -56,7 +64,6 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.koin)
     implementation(libs.koin.compose)
-    implementation(libs.barcode.scanning)
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.view)
     implementation(libs.camera2)
@@ -64,10 +71,7 @@ dependencies {
     implementation(libs.camera.compose)
     implementation(libs.compose.navigation)
     implementation(libs.kotlin.serialization)
-    implementation(libs.google.zxing)
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

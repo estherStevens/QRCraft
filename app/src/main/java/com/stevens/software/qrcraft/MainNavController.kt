@@ -5,13 +5,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.stevens.software.qrcraft.generate_qr.data_entry.ui.QrDataEntryScreen
-import com.stevens.software.qrcraft.generate_qr.preview_qr.PreviewQrScreen
-import com.stevens.software.qrcraft.generate_qr.select_type.QrType
-import com.stevens.software.qrcraft.generate_qr.select_type.SelectQrCodeTypeScreen
-import com.stevens.software.qrcraft.qr_camera.ui.CameraScreen
-import com.stevens.software.qrcraft.qr_history.QrHistoryScreen
+import com.stevens.software.generator.QrType
+import com.stevens.software.generator.SelectQrCodeTypeScreen
+import com.stevens.software.generator.ui.QrDataEntryScreen
+import com.stevens.software.history.QrHistoryScreen
 import com.stevens.software.qrcraft.scanned_qr_result.QrResultScreen
+import com.stevens.software.result.ui.PreviewQrScreen
+import com.stevens.software.scanner.ui.CameraScreen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -23,7 +23,7 @@ sealed interface AppRoute
 object QrCamera: AppRoute
 
 @Serializable
-data class ScanResult(val qrCodeBitmapFilePath: String): AppRoute
+data class ScanResult(val qrCodeId: Long): AppRoute
 
 @Serializable
 object AddQrChooseType: AppRoute
@@ -46,9 +46,9 @@ fun MainNavController(
         composable<QrCamera>{
             CameraScreen(
                 viewModel = koinViewModel(),
-                onNavigateToScanResult = { qrCodeBitmapFilePath->
+                onNavigateToScanResult = { qrCodeId->
                     navController.navigate(
-                        ScanResult(qrCodeBitmapFilePath)
+                        ScanResult(qrCodeId)
                     )
                 }
             )
@@ -59,7 +59,7 @@ fun MainNavController(
                 viewModel = koinViewModel(
                     parameters = {
                         parametersOf(
-                            routeArgs.qrCodeBitmapFilePath
+                            routeArgs.qrCodeId
                         )
                     }
                 ),

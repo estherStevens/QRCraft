@@ -18,9 +18,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.stevens.software.analyzer.di.analyzerModule
+import com.stevens.software.core.di.coreModule
+import com.stevens.software.generator.di.generatorModule
+import com.stevens.software.history.di.historyModule
 import com.stevens.software.qrcraft.di.appModule
-import com.stevens.software.qrcraft.ui.theme.QRCraftTheme
-import com.stevens.software.qrcraft.ui.toolkit.BottomNavigationBar
+import com.stevens.software.uitoolkit.di.uiToolKitModule
+import com.stevens.software.uitoolkit.theme.QRCraftTheme
+import com.stevens.software.qrcraft.ui.BottomNavigationBar
+import com.stevens.software.result.di.resultModule
+import com.stevens.software.scanner.di.scannerModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 
@@ -31,7 +38,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         startKoin {
             androidContext(this@MainActivity)
-            modules(appModule)
+            modules(appModule, coreModule, uiToolKitModule, historyModule, generatorModule, resultModule, scannerModule, analyzerModule)
         }
         setContent {
             QRCraftTheme {

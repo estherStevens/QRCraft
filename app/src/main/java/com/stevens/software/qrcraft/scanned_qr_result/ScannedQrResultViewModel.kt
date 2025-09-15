@@ -4,11 +4,15 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.stevens.software.qrcraft.qr_camera.QrCodeAnalyzer
-import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
+//import com.stevens.software.qrcraft.qr_camera.QrCodeAnalyzer
+import com.stevens.software.analyzer.QrCodeData
+import com.stevens.software.qrcraft.db.QrCodeRepository
+import com.stevens.software.qrcraft.db.QrResult
+import com.stevens.software.result.ui.GeneratedQrResultUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -16,57 +20,69 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class QrResultViewModel(
-    qrCodeBitmapFilePath: String,
-    private val qrCodeAnalyzer: QrCodeAnalyzer
+    qrCodeId: Long,
+    private val qrCodeRepository: QrCodeRepository
 ) : ViewModel() {
 
     private val _qrBitmap: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
-    val qrBitmap = _qrBitmap.asStateFlow()
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
     private val _qrData: MutableStateFlow<QrCodeData?> = MutableStateFlow(null)
 
-    init {
-        decodeBitmap(qrCodeBitmapFilePath)
-    }
-
-    val uiState = combine(
+    val uiState: StateFlow<ScanResultUiState> = combine(
+        _qrBitmap,
         _qrData,
-        qrBitmap,
-        _isLoading
-    ) { qrType, qrBitmap, isLoading ->
+        _isLoading,
+    ) { bitmap, qrData, isLoading->
         ScanResultUiState(
-            qrCodeBitmap = qrBitmap,
-            qrDataType = qrType,
-            isLoading = isLoading
+            bitmap = bitmap,
+            qrData = qrData,
+            isLoading = false
         )
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
-        initialScanResultUiState()
+        ScanResultUiState(null, null, true)
     )
 
-    private fun decodeBitmap(qrCodeBitmapFilePath: String){
+    init {
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
-                val bitmap = BitmapFactory.decodeFile(qrCodeBitmapFilePath)
-                val qrData = qrCodeAnalyzer.extractDataFromQr(bitmap)
-//                _qrBitmap.emit(bitmap)
-//                _qrData.emit(qrData)
-                _isLoading.emit(false)
+            qrCodeRepository.getQrCode(qrCodeId).collect { qrCode ->
+                qrCode.let {
+                    val qrData = it?.parsedData?.toQrCodeData(it.qrBitmapPath)
+                    val bitmap = BitmapFactory.decodeFile(qrData?.qrBitmapPath)
+                    _qrBitmap.emit(bitmap)
+                    _qrData.emit(qrData)
+                }
             }
         }
     }
 
-    private fun initialScanResultUiState() =
-        ScanResultUiState(
-            qrCodeBitmap = null,
-            qrDataType = null,
-            isLoading = true
-        )
+
+    private fun QrResult.toQrCodeData(qrBitmapPath: String): QrCodeData? =
+        when(this){ //todo - ideally dont need to the bitmap path here
+            is QrResult.Contact -> {
+                QrCodeData.ContactDetails(qrBitmapPath = qrBitmapPath, name = this.name, email = this.email, tel = this.phone)
+            }
+            is QrResult.Geolocation -> {
+                QrCodeData.Geolocation(qrBitmapPath = qrBitmapPath, longitude = this.longitude, latitude = this.latitude)
+            }
+            is QrResult.Link -> {
+                QrCodeData.Url(qrBitmapPath = qrBitmapPath, link = this.url)
+            }
+            is QrResult.PhoneNumber -> {
+                QrCodeData.PhoneNumber(qrBitmapPath = qrBitmapPath, phoneNumber = this.phoneNumber)
+            }
+            is QrResult.PlainText -> {
+                QrCodeData.PlainText(qrBitmapPath = qrBitmapPath, text = this.text)
+            }
+            is QrResult.Wifi -> {
+                QrCodeData.Wifi(qrBitmapPath = qrBitmapPath, ssid = this.ssid, password = this.password, encryptionType = this.encryptionType)
+            }
+        }
 }
 
 data class ScanResultUiState(
-    val qrCodeBitmap: Bitmap?,
-    val qrDataType: QrCodeData?,
-    val isLoading: Boolean,
+    val bitmap: Bitmap?,
+    val qrData: QrCodeData?,
+    val isLoading: Boolean
 )
