@@ -1,8 +1,7 @@
-package com.stevens.software.qrcraft.db
+package com.stevens.software.core
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.time.OffsetDateTime
 
 @Entity(tableName = "qrCodes")
 data class QrCode(

@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialize)
-
 }
 
 android {
@@ -37,7 +36,6 @@ android {
 
 dependencies {
     implementation(libs.koin)
-    implementation(libs.koin.compose)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)

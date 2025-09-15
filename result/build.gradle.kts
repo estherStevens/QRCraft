@@ -38,9 +38,7 @@ dependencies {
     implementation(project(":analyzer"))
     implementation(project(":core"))
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+    implementation(libs.androidx.material3)
     implementation(libs.koin.compose)
     implementation(libs.google.zxing)
     implementation(libs.androidx.ui.tooling.preview)

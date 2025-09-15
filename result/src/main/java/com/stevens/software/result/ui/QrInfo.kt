@@ -27,7 +27,7 @@ import com.stevens.software.uitoolkit.R
 import com.stevens.software.uitoolkit.theme.extendedColours
 
 @Composable
-fun QrInfo(
+internal fun QrInfo(
     qrCodeData: QrCodeData?,
     onShare: (String) -> Unit,
     onCopyToClipboard: (String) -> Unit

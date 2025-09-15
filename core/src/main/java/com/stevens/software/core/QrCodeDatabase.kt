@@ -1,11 +1,10 @@
-package com.stevens.software.qrcraft.db
+package com.stevens.software.core
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.stevens.software.core.QrResultConverter
 
 @Database(entities = [QrCode::class], version = 1, exportSchema = false)
 @TypeConverters(QrResultConverter::class)

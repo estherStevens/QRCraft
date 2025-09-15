@@ -1,4 +1,4 @@
-package com.stevens.software.qrcraft.db
+package com.stevens.software.core
 
 import android.content.Context
 import kotlinx.coroutines.flow.Flow

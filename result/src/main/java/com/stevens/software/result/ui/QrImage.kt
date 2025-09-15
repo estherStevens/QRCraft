@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.stevens.software.uitoolkit.theme.extendedColours
 
 @Composable
-fun QrImage(
+internal fun QrImage(
     qrCodeBitmap: Bitmap?
 ) {
     Box(

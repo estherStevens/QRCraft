@@ -5,9 +5,8 @@ import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stevens.software.analyzer.QrCodeData
-import com.stevens.software.qrcraft.db.QrCodeRepository
-import com.stevens.software.qrcraft.db.QrResult
-import com.stevens.software.result.QrCodeAnalyzer
+import com.stevens.software.core.QrCodeRepository
+import com.stevens.software.core.QrResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

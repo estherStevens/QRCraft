@@ -1,11 +1,10 @@
-package com.stevens.software.result
+package com.stevens.software.analyzer
 
 import android.content.Context
 import android.graphics.Bitmap
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
-import com.stevens.software.analyzer.QrCodeData
 import com.stevens.software.analyzer.utils.BitmapUtils.saveBitmapToCache
 import com.stevens.software.analyzer.utils.MlKitScannerOptions
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,7 +42,7 @@ class QrCodeAnalyzer(val context: Context){
     }
 }
 
-fun Barcode.mapToQrCodeData(qrBitmapPath: String) =
+private fun Barcode.mapToQrCodeData(qrBitmapPath: String) =
     when(this.valueType) {
         Barcode.TYPE_WIFI -> {
             QrCodeData.Wifi(

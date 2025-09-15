@@ -38,9 +38,7 @@ dependencies {
     implementation(project(":analyzer"))
     implementation(project(":core"))
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material3)
+    implementation(libs.androidx.material3)
     implementation(libs.koin.compose)
     implementation(libs.barcode.scanning)
     implementation(libs.camera.lifecycle)
@@ -48,7 +46,5 @@ dependencies {
     implementation(libs.camera2)
     implementation(libs.camera.extensions)
     implementation(libs.camera.compose)
-
-    testImplementation(libs.junit)
 
 }

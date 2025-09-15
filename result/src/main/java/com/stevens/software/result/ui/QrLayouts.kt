@@ -28,7 +28,7 @@ import com.stevens.software.uitoolkit.theme.extendedColours
 
 
 @Composable
-fun PlainText(qrCodeData: QrCodeData.PlainText) {
+internal fun PlainText(qrCodeData: QrCodeData.PlainText) {
     var showMoreIsEnabled by remember { mutableStateOf(false) }
     var shouldShowMoreButton by remember { mutableStateOf(false) }
     val maxLines = if (showMoreIsEnabled) Int.MAX_VALUE else 6
@@ -81,7 +81,7 @@ fun PlainText(qrCodeData: QrCodeData.PlainText) {
 }
 
 @Composable
-fun PhoneNumber(qrCodeData: QrCodeData.PhoneNumber) {
+internal fun PhoneNumber(qrCodeData: QrCodeData.PhoneNumber) {
     Text(
         text = stringResource(R.string.qr_type_phone_number),
         style = MaterialTheme.typography.titleMedium,
@@ -97,7 +97,7 @@ fun PhoneNumber(qrCodeData: QrCodeData.PhoneNumber) {
 }
 
 @Composable
-fun Geolocation(qrCodeData: QrCodeData.Geolocation) {
+internal fun Geolocation(qrCodeData: QrCodeData.Geolocation) {
     Text(
         text = stringResource(R.string.qr_type_geolocation),
         style = MaterialTheme.typography.titleMedium,
@@ -119,7 +119,7 @@ fun Geolocation(qrCodeData: QrCodeData.Geolocation) {
 }
 
 @Composable
-fun ContactDetails(qrCodeData: QrCodeData.ContactDetails) {
+internal fun ContactDetails(qrCodeData: QrCodeData.ContactDetails) {
     Text(
         text = stringResource(R.string.qr_type_contact_details),
         style = MaterialTheme.typography.titleMedium,
@@ -145,7 +145,7 @@ fun ContactDetails(qrCodeData: QrCodeData.ContactDetails) {
 }
 
 @Composable
-fun Link(qrCodeData: QrCodeData.Url) {
+internal fun Link(qrCodeData: QrCodeData.Url) {
     Text(
         text = stringResource(R.string.qr_type_link),
         style = MaterialTheme.typography.titleMedium,
@@ -163,7 +163,7 @@ fun Link(qrCodeData: QrCodeData.Url) {
 }
 
 @Composable
-fun Wifi(qrCodeData: QrCodeData.Wifi) {
+internal fun Wifi(qrCodeData: QrCodeData.Wifi) {
     Text(
         text = stringResource(R.string.qr_type_wifi),
         style = MaterialTheme.typography.titleMedium,

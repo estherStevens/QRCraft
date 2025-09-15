@@ -1,4 +1,4 @@
-package com.stevens.software.qrcraft.db
+package com.stevens.software.core
 
 import androidx.room.Dao
 import androidx.room.Delete

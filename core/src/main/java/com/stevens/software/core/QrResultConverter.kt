@@ -1,7 +1,6 @@
 package com.stevens.software.core
 
 import androidx.room.TypeConverter
-import com.stevens.software.qrcraft.db.QrResult
 import kotlinx.serialization.json.Json
 
 class QrResultConverter {
