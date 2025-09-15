@@ -32,7 +32,7 @@ object AddQrChooseType: AppRoute
 data class QrDataEntry(val qrType: QrType): AppRoute
 
 @Serializable
-data class PreviewQr(val qrCodeBitmapFilePath: String): AppRoute
+data class PreviewQr(val qrCodeId: Long): AppRoute
 
 @Serializable
 object QrHistory: AppRoute
@@ -101,7 +101,7 @@ fun MainNavController(
                 viewModel = koinViewModel(
                     parameters = {
                         parametersOf(
-                            routeArgs.qrCodeBitmapFilePath
+                            routeArgs.qrCodeId
                         )
                     }
                 ),

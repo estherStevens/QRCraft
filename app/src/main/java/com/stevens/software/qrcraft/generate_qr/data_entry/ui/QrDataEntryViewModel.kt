@@ -2,10 +2,13 @@ package com.stevens.software.qrcraft.generate_qr.data_entry.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.stevens.software.qrcraft.R
+import com.stevens.software.qrcraft.db.QrCode
+import com.stevens.software.qrcraft.db.QrCodeRepository
+import com.stevens.software.qrcraft.db.QrResult
 import com.stevens.software.qrcraft.generate_qr.data_entry.data.QrGeneratorRepository
 import com.stevens.software.qrcraft.generate_qr.select_type.QrType
-import com.stevens.software.qrcraft.qr_camera.BitmapAnalyzer
+import com.stevens.software.qrcraft.qr_camera.QrCodeAnalyzer
+import com.stevens.software.qrcraft.qr_camera.data.NewQrCodeData
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,11 +18,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.OffsetDateTime
 
 class QrDataEntryViewModel(
     qrCodeType: QrType?,
     private val qrGeneratorRepository: QrGeneratorRepository,
-    private val qrCodeAnalyzer: BitmapAnalyzer
+    private val qrCodeAnalyzer: QrCodeAnalyzer,
+    private val qrCodeRepository: QrCodeRepository
 ): ViewModel() {
 
     private val _isError: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -97,12 +102,53 @@ class QrDataEntryViewModel(
 
 
     private fun createQrCode(qrData: String){
-        val bitmap = qrGeneratorRepository.createQrCode(qrData)
-        qrCodeAnalyzer.saveQrBitmapToFile(bitmap, onResult = {
-            viewModelScope.launch {
-                _navigationEvents.emit(QrDataEntryNavigationEvents.NavigateToPreviewQrScreen(qrCodeBitmapFilePath = it))
+        viewModelScope.launch {
+            val bitmap = qrGeneratorRepository.createQrCode(qrData)
+            //todo save in the db here.
+            val qrCodeData = qrCodeAnalyzer.extractDataFromQr(bitmap)
+            qrCodeData?.let {
+                val qrCode = when(qrCodeData){
+                    is NewQrCodeData.ContactDetails -> QrCode(
+                        qrBitmapPath = qrCodeData.qrBitmapPath,
+                        parsedData = QrResult.Contact(name = qrCodeData.name, email = qrCodeData.email, phone = qrCodeData.tel),
+                        dateCreated = OffsetDateTime.now().toString()
+                    )
+                    is NewQrCodeData.Geolocation -> QrCode(
+                        qrBitmapPath = qrCodeData.qrBitmapPath,
+                        parsedData = QrResult.Geolocation(longitude = qrCodeData.longitude, latitude = qrCodeData.latitude),
+                        dateCreated = OffsetDateTime.now().toString()
+                    )
+                    is NewQrCodeData.PhoneNumber -> QrCode(
+                        qrBitmapPath = qrCodeData.qrBitmapPath,
+                        parsedData = QrResult.PhoneNumber(phoneNumber = qrCodeData.phoneNumber),
+                        dateCreated = OffsetDateTime.now().toString()
+                    )
+                    is NewQrCodeData.PlainText -> QrCode(
+                        qrBitmapPath = qrCodeData.qrBitmapPath,
+                        parsedData = QrResult.PlainText(text = qrCodeData.text),
+                        dateCreated = OffsetDateTime.now().toString()
+                    )
+                    is NewQrCodeData.Url -> QrCode(
+                        qrBitmapPath = qrCodeData.qrBitmapPath,
+                        parsedData = QrResult.Link(url = qrCodeData.link),
+                        dateCreated = OffsetDateTime.now().toString()
+                    )
+                    is NewQrCodeData.Wifi -> QrCode(
+                        qrBitmapPath = qrCodeData.qrBitmapPath,
+                        parsedData = QrResult.Wifi(ssid = qrCodeData.ssid, password = qrCodeData.password, encryptionType = qrCodeData.encryptionType),
+                        dateCreated = OffsetDateTime.now().toString()
+                    )
+                }
+                val id = qrCodeRepository.insertQrCode(qrCode)
+                _navigationEvents.emit(QrDataEntryNavigationEvents.NavigateToPreviewQrScreen(qrCodeId = id))
             }
-        })
+        }
+
+//        qrCodeAnalyzer.saveQrBitmapToFile(bitmap, onResult = {
+//            viewModelScope.launch {
+//                _navigationEvents.emit(QrDataEntryNavigationEvents.NavigateToPreviewQrScreen(qrCodeBitmapFilePath = it))
+//            }
+//        })
 
     }
 
@@ -139,7 +185,7 @@ data class QrDataEntryUiState(
 
 sealed class QrDataEntryNavigationEvents {
     object NavigateBack : QrDataEntryNavigationEvents()
-    data class NavigateToPreviewQrScreen(val qrCodeBitmapFilePath: String): QrDataEntryNavigationEvents()
+    data class NavigateToPreviewQrScreen(val qrCodeId: Long): QrDataEntryNavigationEvents()
 }
 
 sealed class QrData{

@@ -8,7 +8,7 @@ import java.time.OffsetDateTime
 data class QrCode(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val qrType: String,
-    val qrData: String,
+    val qrBitmapPath: String,
+    val parsedData: QrResult?,
     val dateCreated: String
 )

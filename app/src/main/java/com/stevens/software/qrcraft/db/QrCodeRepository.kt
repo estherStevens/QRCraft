@@ -8,9 +8,9 @@ class QrCodeRepository(private val context: Context) {
 
     fun getAllQrCodes(): Flow<List<QrCode>> = qrCodeDao.getAllQrCodes()
 
-    fun getQrCode(id: Int): Flow<QrCode?> = qrCodeDao.getQrCode(id)
+    fun getQrCode(id: Long): Flow<QrCode?> = qrCodeDao.getQrCode(id)
 
-    suspend fun insertQrCode(qrCode: QrCode) = qrCodeDao.insert(qrCode)
+    suspend fun insertQrCode(qrCode: QrCode): Long = qrCodeDao.insert(qrCode)
 
     suspend fun deleteQrCode(qrCode: QrCode) = qrCodeDao.delete(qrCode)
 

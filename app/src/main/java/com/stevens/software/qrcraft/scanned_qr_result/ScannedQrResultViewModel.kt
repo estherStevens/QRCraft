@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.stevens.software.qrcraft.qr_camera.BitmapAnalyzer
+import com.stevens.software.qrcraft.qr_camera.QrCodeAnalyzer
 import com.stevens.software.qrcraft.qr_camera.data.QrCodeData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +17,7 @@ import kotlinx.coroutines.withContext
 
 class QrResultViewModel(
     qrCodeBitmapFilePath: String,
-    private val bitmapAnalyzer: BitmapAnalyzer
+    private val qrCodeAnalyzer: QrCodeAnalyzer
 ) : ViewModel() {
 
     private val _qrBitmap: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
@@ -49,9 +49,9 @@ class QrResultViewModel(
         viewModelScope.launch {
             withContext(Dispatchers.IO){
                 val bitmap = BitmapFactory.decodeFile(qrCodeBitmapFilePath)
-                val qrData = bitmapAnalyzer.extractDataFromQr(bitmap)
-                _qrBitmap.emit(bitmap)
-                _qrData.emit(qrData)
+                val qrData = qrCodeAnalyzer.extractDataFromQr(bitmap)
+//                _qrBitmap.emit(bitmap)
+//                _qrData.emit(qrData)
                 _isLoading.emit(false)
             }
         }
