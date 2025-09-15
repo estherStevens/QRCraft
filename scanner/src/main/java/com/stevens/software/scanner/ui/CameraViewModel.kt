@@ -98,7 +98,7 @@ class CameraViewModel(
                             )
                         }
                         val id = qrCodeRepository.insertQrCode(qrCode)
-                        _navigationEvents.emit(CameraNavigationEvents.OnNavigateToScanResult(id)) }
+                        _navigationEvents.emit(CameraNavigationEvents.OnNavigateToPreviewQr(id)) }
                 }
             }
         }
@@ -111,5 +111,5 @@ data class QrCameraUiState(
 )
 
 sealed interface CameraNavigationEvents{
-    data class OnNavigateToScanResult(val qrCodeId: Long) : CameraNavigationEvents
+    data class OnNavigateToPreviewQr(val qrCodeId: Long) : CameraNavigationEvents
 }

@@ -9,7 +9,6 @@ import com.stevens.software.generator.QrType
 import com.stevens.software.generator.SelectQrCodeTypeScreen
 import com.stevens.software.generator.ui.QrDataEntryScreen
 import com.stevens.software.history.QrHistoryScreen
-import com.stevens.software.qrcraft.scanned_qr_result.QrResultScreen
 import com.stevens.software.result.ui.PreviewQrScreen
 import com.stevens.software.scanner.ui.CameraScreen
 import kotlinx.serialization.Serializable
@@ -21,9 +20,6 @@ sealed interface AppRoute
 
 @Serializable
 object QrCamera: AppRoute
-
-@Serializable
-data class ScanResult(val qrCodeId: Long): AppRoute
 
 @Serializable
 object AddQrChooseType: AppRoute
@@ -46,28 +42,9 @@ fun MainNavController(
         composable<QrCamera>{
             CameraScreen(
                 viewModel = koinViewModel(),
-                onNavigateToScanResult = { qrCodeId->
-                    navController.navigate(
-                        ScanResult(qrCodeId)
-                    )
-                }
-            )
-        }
-        composable<ScanResult>{ backStackEntry ->
-            val routeArgs = backStackEntry.toRoute<ScanResult>()
-            QrResultScreen(
-                viewModel = koinViewModel(
-                    parameters = {
-                        parametersOf(
-                            routeArgs.qrCodeId
-                        )
-                    }
-                ),
-                onNavigateBack = {
-                    navController.popBackStack(
-                        route = QrCamera,
-                        inclusive = false
-                    )
+                onNavigateToPreviewQr = { qrCodeId->
+                    navController.navigate(PreviewQr(qrCodeId))
+
                 }
             )
         }
@@ -90,8 +67,8 @@ fun MainNavController(
                 onNavigateBack = {
                     navController.popBackStack()
                 },
-                onNavigateToPreviewQr = { qrCodeBitmapFilePath ->
-                    navController.navigate(PreviewQr(qrCodeBitmapFilePath))
+                onNavigateToPreviewQr = { qrCodeId ->
+                    navController.navigate(PreviewQr(qrCodeId))
                 }
             )
         }
@@ -106,7 +83,10 @@ fun MainNavController(
                     }
                 ),
                 onNavigateBack = {
-                    navController.popBackStack()
+                    navController.popBackStack(
+                        route = QrCamera,
+                        inclusive = false
+                    )
                 }
             )
         }

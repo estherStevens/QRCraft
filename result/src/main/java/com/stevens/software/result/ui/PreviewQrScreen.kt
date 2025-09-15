@@ -1,5 +1,6 @@
 package com.stevens.software.result.ui
 
+import android.content.Intent
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -37,13 +38,13 @@ fun PreviewQrScreen(
         qrCodeData = uiState.value.qrData,
         onNavigateBack = onNavigateBack,
         onShare = {
-//            val sendIntent = Intent().apply {
-//                Intent.setAction = Intent.ACTION_SEND
-//                putExtra(Intent.EXTRA_TEXT, it)
-//                Intent.setType = "text/plain"
-//            }
-//            val shareIntent = Intent.createChooser(sendIntent, null)
-//            context.startActivity(shareIntent)
+            val sendIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, it)
+                type = "text/plain"
+            }
+            val shareIntent = Intent.createChooser(sendIntent, null)
+            context.startActivity(shareIntent)
         },
         onCopyToClipboard = {
             clipboardManager.setText(AnnotatedString(it))

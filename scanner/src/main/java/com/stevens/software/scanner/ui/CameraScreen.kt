@@ -67,7 +67,7 @@ import com.stevens.software.uitoolkit.toolkit.QRScannerOverlay
 @Composable
 fun CameraScreen(
     viewModel: CameraViewModel,
-    onNavigateToScanResult: (Long) -> Unit
+    onNavigateToPreviewQr: (Long) -> Unit
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -109,8 +109,8 @@ fun CameraScreen(
     LaunchedEffect(Unit) {
         viewModel.navigationEvents.collect { event ->
             when(event) {
-                is CameraNavigationEvents.OnNavigateToScanResult -> {
-                    onNavigateToScanResult(event.qrCodeId)
+                is CameraNavigationEvents.OnNavigateToPreviewQr -> {
+                    onNavigateToPreviewQr(event.qrCodeId)
                 }
             }
         }
