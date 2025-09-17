@@ -9,5 +9,6 @@ data class QrCode(
     val id: Int = 0,
     val qrBitmapPath: String,
     val parsedData: QrResult?,
-    val dateCreated: String
+    val dateCreated: String,
+    val userGenerated: Boolean,
 )

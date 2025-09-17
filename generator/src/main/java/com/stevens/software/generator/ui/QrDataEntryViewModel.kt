@@ -1,5 +1,7 @@
 package com.stevens.software.generator.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stevens.software.analyzer.QrCodeData
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.OffsetDateTime
 
+@RequiresApi(Build.VERSION_CODES.O)
 class QrDataEntryViewModel(
     qrCodeType: QrType?,
     private val qrGeneratorRepository: QrGeneratorRepository,
@@ -87,21 +90,13 @@ class QrDataEntryViewModel(
         }
     }
 
-    fun generateQrCode() {
+    fun generateQrCode(){
         uiState.value.qrData?.let {
-            when(it){
-                is QrData.Contact ->  createQrCode("${it.name}${it.email}${it.phoneNumber}")
-                is QrData.Geolocation -> createQrCode("${it.longitude}${it.latitude}")
-                is QrData.Link -> createQrCode(it.url)
-                is QrData.PhoneNumber -> createQrCode(it.phoneNumber)
-                is QrData.Text -> createQrCode(it.text)
-                is QrData.Wifi -> createQrCode("${it.ssid}${it.password}${it.encryptionType}}")
-            }
+            createQrCode(it)
         }
     }
 
-
-    private fun createQrCode(qrData: String){
+    private fun createQrCode(qrData: QrData){
         viewModelScope.launch {
             val bitmap = qrGeneratorRepository.createQrCode(qrData)
             val qrCodeData = qrCodeAnalyzer.extractDataFromQr(bitmap)
@@ -114,32 +109,38 @@ class QrDataEntryViewModel(
                             email = qrCodeData.email,
                             phone = qrCodeData.tel
                         ),
-                        dateCreated = OffsetDateTime.now().toString()
+                        dateCreated = OffsetDateTime.now().toString(),
+                        userGenerated = true
                     )
                     is QrCodeData.Geolocation -> QrCode(
                         qrBitmapPath = qrCodeData.qrBitmapPath,
                         parsedData = QrResult.Geolocation(longitude = qrCodeData.longitude, latitude = qrCodeData.latitude),
-                        dateCreated = OffsetDateTime.now().toString()
+                        dateCreated = OffsetDateTime.now().toString(),
+                        userGenerated = true
                     )
                     is QrCodeData.PhoneNumber -> QrCode(
                         qrBitmapPath = qrCodeData.qrBitmapPath,
                         parsedData = QrResult.PhoneNumber(phoneNumber = qrCodeData.phoneNumber),
-                        dateCreated = OffsetDateTime.now().toString()
+                        dateCreated = OffsetDateTime.now().toString(),
+                        userGenerated = true
                     )
                     is QrCodeData.PlainText -> QrCode(
                         qrBitmapPath = qrCodeData.qrBitmapPath,
                         parsedData = QrResult.PlainText(text = qrCodeData.text),
-                        dateCreated = OffsetDateTime.now().toString()
+                        dateCreated = OffsetDateTime.now().toString(),
+                        userGenerated = true
                     )
                     is QrCodeData.Url -> QrCode(
                         qrBitmapPath = qrCodeData.qrBitmapPath,
                         parsedData = QrResult.Link(url = qrCodeData.link),
-                        dateCreated = OffsetDateTime.now().toString()
+                        dateCreated = OffsetDateTime.now().toString(),
+                        userGenerated = true
                     )
                     is QrCodeData.Wifi -> QrCode(
                         qrBitmapPath = qrCodeData.qrBitmapPath,
                         parsedData = QrResult.Wifi(ssid = qrCodeData.ssid, password = qrCodeData.password, encryptionType = qrCodeData.encryptionType),
-                        dateCreated = OffsetDateTime.now().toString()
+                        dateCreated = OffsetDateTime.now().toString(),
+                        userGenerated = true
                     )
                 }
                 val id = qrCodeRepository.insertQrCode(qrCode)

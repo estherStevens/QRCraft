@@ -17,10 +17,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stevens.software.analyzer.QrCodeData
 import com.stevens.software.uitoolkit.R
+import com.stevens.software.uitoolkit.theme.QRCraftTheme
 import com.stevens.software.uitoolkit.theme.extendedColours
 import com.stevens.software.uitoolkit.toolkit.TopNavBar
 
@@ -95,4 +99,53 @@ fun PreviewQrView(
             QrImage(qrCodeBitmap)
         }
     }
+}
+
+@Preview
+@Composable
+private fun PreviewQrViewPreview(@PreviewParameter(PreviewQrPreviewParameterProvider::class) qrCodeData: QrCodeData){
+    QRCraftTheme {
+        PreviewQrView(
+            qrCodeBitmap = null,
+            qrCodeData = qrCodeData,
+            onNavigateBack = {},
+            onShare = {},
+            onCopyToClipboard = {}
+
+        )
+    }
+}
+
+class PreviewQrPreviewParameterProvider(): PreviewParameterProvider<QrCodeData> {
+    override val values = sequenceOf(
+        QrCodeData.PhoneNumber(
+            qrBitmapPath = "",
+            phoneNumber = "",
+        ),
+        QrCodeData.Url(
+            qrBitmapPath = "",
+            link = "",
+        ),
+        QrCodeData.PlainText(
+            qrBitmapPath = "",
+            text = "",
+        ),
+        QrCodeData.Geolocation(
+            qrBitmapPath = "",
+            longitude = "",
+            latitude = "",
+        ),
+        QrCodeData.ContactDetails(
+            qrBitmapPath = "",
+            name = "",
+            tel = "",
+            email = ""
+        ),
+        QrCodeData.Wifi(
+            qrBitmapPath = "",
+            ssid = "",
+            password = "",
+            encryptionType = ""
+        ),
+    )
 }

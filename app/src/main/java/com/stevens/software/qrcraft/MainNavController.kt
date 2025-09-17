@@ -92,7 +92,7 @@ fun MainNavController(
         }
         composable<QrHistory> {
             QrHistoryScreen(
-
+                viewModel = koinViewModel()
             )
         }
     }

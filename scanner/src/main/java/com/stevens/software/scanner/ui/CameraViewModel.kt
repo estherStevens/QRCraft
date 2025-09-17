@@ -69,32 +69,38 @@ class CameraViewModel(
                                     email = qrCodeData.email,
                                     phone = qrCodeData.tel
                                 ),
-                                dateCreated = OffsetDateTime.now().toString()
+                                dateCreated = OffsetDateTime.now().toString(),
+                                userGenerated = false
                             )
                             is QrCodeData.Geolocation -> QrCode(
                                 qrBitmapPath = qrCodeData.qrBitmapPath,
                                 parsedData = QrResult.Geolocation(longitude = qrCodeData.longitude, latitude = qrCodeData.latitude),
-                                dateCreated = OffsetDateTime.now().toString()
+                                dateCreated = OffsetDateTime.now().toString(),
+                                userGenerated = false
                             )
                             is QrCodeData.PhoneNumber -> QrCode(
                                 qrBitmapPath = qrCodeData.qrBitmapPath,
                                 parsedData = QrResult.PhoneNumber(phoneNumber = qrCodeData.phoneNumber),
-                                dateCreated = OffsetDateTime.now().toString()
+                                dateCreated = OffsetDateTime.now().toString(),
+                                userGenerated = false
                             )
                             is QrCodeData.PlainText -> QrCode(
                                 qrBitmapPath = qrCodeData.qrBitmapPath,
                                 parsedData = QrResult.PlainText(text = qrCodeData.text),
-                                dateCreated = OffsetDateTime.now().toString()
+                                dateCreated = OffsetDateTime.now().toString(),
+                                userGenerated = false
                             )
                             is QrCodeData.Url -> QrCode(
                                 qrBitmapPath = qrCodeData.qrBitmapPath,
                                 parsedData = QrResult.Link(url = qrCodeData.link),
-                                dateCreated = OffsetDateTime.now().toString()
+                                dateCreated = OffsetDateTime.now().toString(),
+                                userGenerated = false
                             )
                             is QrCodeData.Wifi -> QrCode(
                                 qrBitmapPath = qrCodeData.qrBitmapPath,
                                 parsedData = QrResult.Wifi(ssid = qrCodeData.ssid, password = qrCodeData.password, encryptionType = qrCodeData.encryptionType),
-                                dateCreated = OffsetDateTime.now().toString()
+                                dateCreated = OffsetDateTime.now().toString(),
+                                userGenerated = false
                             )
                         }
                         val id = qrCodeRepository.insertQrCode(qrCode)

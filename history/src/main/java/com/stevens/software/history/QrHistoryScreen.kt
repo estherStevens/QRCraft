@@ -33,14 +33,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stevens.software.uitoolkit.theme.QRCraftTheme
 import com.stevens.software.uitoolkit.theme.extendedColours
 import com.stevens.software.uitoolkit.toolkit.TopNavBar
 import com.stevens.software.uitoolkit.R
 
+@Composable
+fun QrHistoryScreen(
+    viewModel: QrHistoryViewModel
+){
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    QrHistoryView()
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun QrHistoryScreen() {
+internal fun QrHistoryView() {
     Scaffold(
         topBar = {
             TopNavBar(
@@ -180,6 +189,6 @@ private fun EmptyState() {
 @Preview
 fun ScanHistoryScreenPreview() {
     QRCraftTheme {
-        QrHistoryScreen()
+        QrHistoryView()
     }
 }

@@ -35,6 +35,9 @@ android {
 
 dependencies {
     implementation(project(":uitoolkit"))
+    implementation(project(":core"))
+    implementation(project(":analyzer"))
+
     implementation(libs.koin.compose)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
