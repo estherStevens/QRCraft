@@ -180,6 +180,7 @@ fun QRScannerView(
             .build()
     }
     var surfaceRequest by remember { mutableStateOf<SurfaceRequest?>(null) }
+    var hasScanned by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         imageAnalysis.setAnalyzer(
@@ -187,7 +188,10 @@ fun QRScannerView(
             CameraQrAnalyzer(
                 onQrCodeDetected = onQrDetected,
                 onQrCodeScanned = { qrCodeBitmap ->
-                    onQrScanned(qrCodeBitmap)
+                    if (qrCodeBitmap != null && !hasScanned) {
+                        hasScanned = true
+                        onQrScanned(qrCodeBitmap)
+                    }
                 })
         )
     }

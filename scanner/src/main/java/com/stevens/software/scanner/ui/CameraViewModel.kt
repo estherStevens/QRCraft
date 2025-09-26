@@ -59,10 +59,9 @@ class CameraViewModel(
         viewModelScope.launch {
             if(qrCodeBitmap != null){
                val qrCodeData = qrCodeAnalyzer.extractDataFromQr(qrCodeBitmap)
-                qrCodeData.let {
                     qrCodeData?.let {
                         val qrCode = when(qrCodeData){
-                            is QrCodeData.ContactDetails -> QrCode( //todo maybe move this logic to the core module
+                            is QrCodeData.ContactDetails -> QrCode(
                                 qrBitmapPath = qrCodeData.qrBitmapPath,
                                 parsedData = QrResult.Contact(
                                     name = qrCodeData.name,
@@ -106,7 +105,6 @@ class CameraViewModel(
                         val id = qrCodeRepository.insertQrCode(qrCode)
                         _navigationEvents.emit(CameraNavigationEvents.OnNavigateToPreviewQr(id)) }
                 }
-            }
         }
     }
 

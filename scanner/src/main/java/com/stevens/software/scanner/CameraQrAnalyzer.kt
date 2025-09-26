@@ -33,25 +33,20 @@ class CameraQrAnalyzer(
             val inputImage =
                 InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
             var bitmap: Bitmap? = null
-            var qrScannedSuccessfully = false
             scanner.process(inputImage)
                 .addOnSuccessListener { qrCode ->
-                    if (qrScannedSuccessfully) return@addOnSuccessListener
                     qrCode.forEach {
                         onQrCodeDetected()
                         val rawValue = it.rawValue
                         if (rawValue.isNullOrBlank().not()) {
                             bitmap = cropBitmap(imageProxy.toRotatedBitmap(), it)
-                            qrScannedSuccessfully = true
                         }
                     }
                 }
                 .addOnFailureListener {}
                 .addOnCompleteListener {
                     imageProxy.close()
-                    if (qrScannedSuccessfully) {
-                        onQrCodeScanned(bitmap)
-                    }
+                    onQrCodeScanned(bitmap)
                 }
         } else {
             imageProxy.close()
