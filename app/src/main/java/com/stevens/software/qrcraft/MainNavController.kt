@@ -92,7 +92,10 @@ fun MainNavController(
         }
         composable<QrHistory> {
             QrHistoryScreen(
-                viewModel = koinViewModel()
+                viewModel = koinViewModel(),
+                onNavigateToPreview = {
+                    navController.navigate(PreviewQr(it.toLong()))
+                }
             )
         }
     }

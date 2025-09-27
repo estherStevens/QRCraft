@@ -1,8 +1,11 @@
 package com.stevens.software.history
 
+import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,22 +21,29 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -42,6 +52,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.stevens.software.analyzer.QrCodeData
 import com.stevens.software.uitoolkit.theme.QRCraftTheme
 import com.stevens.software.uitoolkit.theme.extendedColours
 import com.stevens.software.uitoolkit.toolkit.TopNavBar
@@ -51,12 +63,27 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun QrHistoryScreen(
-    viewModel: QrHistoryViewModel
+    viewModel: QrHistoryViewModel,
+    onNavigateToPreview: (Int) -> Unit
 ) {
+    val context = LocalContext.current
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     QrHistoryView(
         scannedQrs = uiState.value.scannedQrs,
-        generatedQrs = uiState.value.generatedQrs
+        generatedQrs = uiState.value.generatedQrs,
+        onDeleteQr = {
+            viewModel.deleteQrCode(it)
+        },
+        onShare = {
+            val sendIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, it)
+                type = "text/plain"
+            }
+            val shareIntent = Intent.createChooser(sendIntent, null)
+            context.startActivity(shareIntent)
+        },
+        onNavigateToPreview = onNavigateToPreview
     )
 }
 
@@ -64,8 +91,15 @@ fun QrHistoryScreen(
 @Composable
 internal fun QrHistoryView(
     scannedQrs: List<HistoricQrCode>,
-    generatedQrs: List<HistoricQrCode>
+    generatedQrs: List<HistoricQrCode>,
+    onDeleteQr: (Int) -> Unit,
+    onShare: (String) -> Unit,
+    onNavigateToPreview: (Int) -> Unit
 ) {
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var selectedQrCode by remember { mutableStateOf<HistoricQrCode?>(null) }
+
     Scaffold(
         topBar = {
             TopNavBar(
@@ -103,21 +137,69 @@ internal fun QrHistoryView(
                     Spacer(Modifier.size(12.dp))
                 }
                 when(selectedTabIndex) {
-                    0 -> historicQrs(scannedQrs)
-                    1 -> historicQrs(generatedQrs)
+                    0 -> historicQrs(
+                        historicQrs = scannedQrs,
+                        onShowBottomSheet = {
+                            selectedQrCode = it
+                            showBottomSheet = true
+                        },
+                        onNavigateToPreview = { id ->
+                            onNavigateToPreview(id)
+                        }
+                    )
+                    1 -> historicQrs(
+                        historicQrs = generatedQrs,
+                        onShowBottomSheet = {
+                            selectedQrCode = it
+                            showBottomSheet = true
+                        },
+                        onNavigateToPreview = onNavigateToPreview
+                    )
                 }
 
             }
-
         }
 
+        if (showBottomSheet) {
+            selectedQrCode?.let {
+                BottomSheet(
+                    sheetState = sheetState,
+                    onDismiss = {
+                        showBottomSheet = false
+                                },
+                    onShare = {
+                        showBottomSheet = false
+                        val qrData = extractDataAndConvertToString(it)
+                        onShare(qrData)
+                    },
+                    onDelete = {
+                        showBottomSheet = false
+                        onDeleteQr(it.id)
+                    }
+                )
+            }
+        }
     }
 }
 
-private fun LazyListScope.historicQrs(historicQrs: List<HistoricQrCode>){
+private fun LazyListScope.historicQrs(
+    historicQrs: List<HistoricQrCode>,
+    onShowBottomSheet: (HistoricQrCode) -> Unit,
+    onNavigateToPreview: (Int) -> Unit
+){
     when(historicQrs.isEmpty()) {
         true ->  item { EmptyState() }
-        false -> this.items(historicQrs) { QrHistoryRow(it) }
+        false -> this.items(historicQrs) {
+            QrHistoryRow(
+                qrHistoricQrCode = it,
+                onShowBottomSheet = { historicQrCode ->
+                    onShowBottomSheet(historicQrCode)
+                },
+                onNavigateToPreview = { historicQrCodeId ->
+                    onNavigateToPreview(historicQrCodeId)
+                }
+            )
+        }
     }
 }
 
@@ -164,8 +246,13 @@ private fun Tabs(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun QrHistoryRow(qrHistoricQrCode: HistoricQrCode) {
+private fun QrHistoryRow(
+    qrHistoricQrCode: HistoricQrCode,
+    onShowBottomSheet: (HistoricQrCode) -> Unit,
+    onNavigateToPreview: (Int) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -173,6 +260,14 @@ private fun QrHistoryRow(qrHistoricQrCode: HistoricQrCode) {
             .background(
                 color = MaterialTheme.extendedColours.surfaceHigher,
                 shape = RoundedCornerShape(16.dp)
+            )
+            .combinedClickable(
+                onClick = {
+                    onNavigateToPreview(qrHistoricQrCode.id)
+                },
+                onLongClick = {
+                    onShowBottomSheet(qrHistoricQrCode)
+                }
             )
     ) {
         Row(modifier = Modifier
@@ -255,6 +350,30 @@ private fun HistoricQrCode.toQrDataText() =
     }
 
 
+private fun extractDataAndConvertToString(historicQrCode: HistoricQrCode): String =
+    when(historicQrCode){
+
+        is HistoricQrCode.ContactDetails -> buildString{
+            appendLine(historicQrCode.name)
+            appendLine(historicQrCode.tel)
+            appendLine(historicQrCode.email)
+        }
+        is HistoricQrCode.Geolocation ->  buildString {
+            append(historicQrCode.latitude)
+            append(", ")
+            append(historicQrCode.longitude)
+        }
+        is HistoricQrCode.PhoneNumber ->  historicQrCode.phoneNumber
+        is HistoricQrCode.PlainText ->  historicQrCode.text
+        is HistoricQrCode.Url ->  historicQrCode.link
+        is HistoricQrCode.Wifi -> buildString {
+            appendLine(historicQrCode.ssid)
+            appendLine(historicQrCode.password)
+            appendLine(historicQrCode.encryptionType)
+        }
+    }
+
+
 @Composable
 private fun EmptyState() {
     Box(
@@ -269,6 +388,83 @@ private fun EmptyState() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BottomSheet(
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+    onShare: () -> Unit,
+    onDelete: () -> Unit,
+){
+    ModalBottomSheet(
+        containerColor = MaterialTheme.extendedColours.surfaceHigher,
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        content = {
+            Column(
+                modifier = Modifier.padding(vertical = 8.dp)
+            ) {
+                BottomSheetButton(
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.share_icon),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            contentDescription = null
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = stringResource(R.string.bottom_sheet_share),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
+                    onClick = onShare
+                )
+                BottomSheetButton(
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.bin_icon),
+                            tint = MaterialTheme.colorScheme.error,
+                            contentDescription = null
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = stringResource(R.string.bottom_sheet_delete),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    onClick = onDelete
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun BottomSheetButton(
+    text: @Composable () -> Unit,
+    icon: @Composable () -> Unit,
+    onClick: () -> Unit
+){
+    TextButton(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth(),
+
+        ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            text()
+            Spacer(Modifier.size(8.dp))
+            icon()
+        }
+    }
+}
+
 @Composable
 @Preview
 fun ScanHistoryScreenPreview() {
@@ -276,6 +472,7 @@ fun ScanHistoryScreenPreview() {
         QrHistoryView(
             listOf(
                 HistoricQrCode.Wifi(
+                    id = 1,
                     ssid = "Esther",
                     password = "esther@gmail.com",
                     encryptionType = "2",
@@ -283,6 +480,7 @@ fun ScanHistoryScreenPreview() {
                     userGenerated = true
                 ),
                 HistoricQrCode.Wifi(
+                    id = 2,
                     ssid = "Esther",
                     password = "esther@gmail.com",
                     encryptionType = "2",
@@ -291,8 +489,9 @@ fun ScanHistoryScreenPreview() {
                 )
             ),
             emptyList(),
+            onDeleteQr = {},
+            onShare = {},
+            onNavigateToPreview = {}
         )
-
-
     }
 }

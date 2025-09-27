@@ -12,7 +12,7 @@ class QrCodeRepository(private val context: Context) {
 
     suspend fun insertQrCode(qrCode: QrCode): Long = qrCodeDao.insert(qrCode)
 
-    suspend fun deleteQrCode(qrCode: QrCode) = qrCodeDao.delete(qrCode)
+    suspend fun deleteQrCode(id: Int) = qrCodeDao.deleteById(id)
 
     suspend fun updateQrCode(qrCode: QrCode) = qrCodeDao.update(qrCode)
 }

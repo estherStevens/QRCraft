@@ -12,8 +12,8 @@ interface QrCodeDao{
     @Insert
     suspend fun insert(qrCode: QrCode) : Long
 
-    @Delete
-    suspend fun delete(qrCode: QrCode)
+    @Query("DELETE FROM qrCodes WHERE id = :id")
+    suspend fun deleteById(id: Int)
 
     @Update
     suspend fun update(qrCode: QrCode)

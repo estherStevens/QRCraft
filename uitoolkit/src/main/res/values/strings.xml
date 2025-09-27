@@ -49,6 +49,8 @@
     <string name="scan_history_empty">History is empty</string>
     <string name="scan_history_scanned">Scanned</string>
     <string name="scan_history_generated">Generated</string>
+    <string name="bottom_sheet_share">Share</string>
+    <string name="bottom_sheet_delete">Delete</string>
 
 
 </resources>
