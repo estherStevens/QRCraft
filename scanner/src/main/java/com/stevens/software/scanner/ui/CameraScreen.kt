@@ -59,6 +59,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stevens.software.uitoolkit.R
 import com.stevens.software.scanner.CameraQrAnalyzer
+import com.stevens.software.uitoolkit.theme.QRCraftTheme
 import com.stevens.software.uitoolkit.theme.extendedColours
 import com.stevens.software.uitoolkit.toolkit.CustomSnackBar
 import com.stevens.software.uitoolkit.toolkit.QRScannerOverlay
@@ -152,11 +153,15 @@ fun CameraScreen(
             if (launchCamera) {
                 QRScannerView(
                     isLoading = uiState.value.isLoading,
+                    isFlashEnabled = uiState.value.isFlashEnabled,
                     onQrScanned = { qrCodeBitmap ->
                         viewModel.onQrScanned(qrCodeBitmap)
                     },
                     onQrDetected = {
                         viewModel.onQrCodeDetected()
+                    },
+                    onFlashToggled = {
+                        viewModel.onFlashToggled(it)
                     }
                 )
             }
@@ -167,8 +172,10 @@ fun CameraScreen(
 @Composable
 fun QRScannerView(
     isLoading: Boolean,
+    isFlashEnabled: Boolean,
     onQrScanned: (Bitmap?) -> Unit,
-    onQrDetected: () -> Unit
+    onQrDetected: () -> Unit,
+    onFlashToggled: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -181,6 +188,7 @@ fun QRScannerView(
     }
     var surfaceRequest by remember { mutableStateOf<SurfaceRequest?>(null) }
     var hasScanned by remember { mutableStateOf(false) }
+    var camera: androidx.camera.core.Camera? by remember { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
         imageAnalysis.setAnalyzer(
@@ -198,15 +206,15 @@ fun QRScannerView(
 
     LaunchedEffect(cameraProviderFuture) {
         val cameraProvider = cameraProviderFuture.get()
-        val preview = Preview.Builder().build()
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+        val preview = Preview.Builder().build()
 
         preview.setSurfaceProvider { request ->
             surfaceRequest = request
         }
 
         cameraProvider.unbindAll()
-        cameraProvider.bindToLifecycle(
+        camera = cameraProvider.bindToLifecycle(
             lifecycleOwner,
             cameraSelector,
             preview,
@@ -214,6 +222,13 @@ fun QRScannerView(
         )
     }
 
+    LaunchedEffect(camera, isFlashEnabled) {
+        camera?.let {
+           if(it.cameraInfo.hasFlashUnit()) {
+               it.cameraControl.enableTorch(isFlashEnabled)
+           }
+        }
+    }
 
     Box {
         surfaceRequest?.let {
@@ -226,7 +241,10 @@ fun QRScannerView(
             )
         }
 
-        QRScannerOverlay()
+        QRScannerOverlay(
+            isFlashEnabled = isFlashEnabled,
+            onFlashToggled = onFlashToggled
+        )
 
         if(isLoading) {
             Column(

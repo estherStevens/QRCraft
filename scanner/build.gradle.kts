@@ -45,5 +45,6 @@ dependencies {
     implementation(libs.camera2)
     implementation(libs.camera.extensions)
     implementation(libs.camera.compose)
-
+    implementation(libs.androidx.ui.tooling.preview)
+    debugImplementation(libs.androidx.ui.tooling)
 }

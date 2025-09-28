@@ -42,6 +42,7 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.google.zxing)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
     debugImplementation(libs.androidx.ui.tooling)
+    implementation(libs.androidx.material3)
+
 }

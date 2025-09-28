@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -32,16 +33,24 @@ class CameraViewModel(
 
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
+    private val isFlashEnabled: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-    val uiState = isLoading.map {
+
+    val uiState = combine(isLoading, isFlashEnabled) {
+          isLoading, isFlashEnabled ->
         QrCameraUiState(
-            isLoading = it
+            isLoading = isLoading,
+            isFlashEnabled = isFlashEnabled
         )
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
-        QrCameraUiState(false)
+        QrCameraUiState(isLoading = false, isFlashEnabled =false)
     )
+
+    fun onFlashToggled(enabled: Boolean){
+        isFlashEnabled.update { enabled }
+    }
 
     fun showPermissionGrantedSnackBar(){
         viewModelScope.launch {
@@ -55,56 +64,69 @@ class CameraViewModel(
         }
     }
 
-    fun onQrScanned(qrCodeBitmap: Bitmap?){
+    fun onQrScanned(qrCodeBitmap: Bitmap?) {
         viewModelScope.launch {
-            if(qrCodeBitmap != null){
-               val qrCodeData = qrCodeAnalyzer.extractDataFromQr(qrCodeBitmap)
-                    qrCodeData?.let {
-                        val qrCode = when(qrCodeData){
-                            is QrCodeData.ContactDetails -> QrCode(
-                                qrBitmapPath = qrCodeData.qrBitmapPath,
-                                parsedData = QrResult.Contact(
-                                    name = qrCodeData.name,
-                                    email = qrCodeData.email,
-                                    phone = qrCodeData.tel
-                                ),
-                                dateCreated = OffsetDateTime.now().toString(),
-                                userGenerated = false
-                            )
-                            is QrCodeData.Geolocation -> QrCode(
-                                qrBitmapPath = qrCodeData.qrBitmapPath,
-                                parsedData = QrResult.Geolocation(longitude = qrCodeData.longitude, latitude = qrCodeData.latitude),
-                                dateCreated = OffsetDateTime.now().toString(),
-                                userGenerated = false
-                            )
-                            is QrCodeData.PhoneNumber -> QrCode(
-                                qrBitmapPath = qrCodeData.qrBitmapPath,
-                                parsedData = QrResult.PhoneNumber(phoneNumber = qrCodeData.phoneNumber),
-                                dateCreated = OffsetDateTime.now().toString(),
-                                userGenerated = false
-                            )
-                            is QrCodeData.PlainText -> QrCode(
-                                qrBitmapPath = qrCodeData.qrBitmapPath,
-                                parsedData = QrResult.PlainText(text = qrCodeData.text),
-                                dateCreated = OffsetDateTime.now().toString(),
-                                userGenerated = false
-                            )
-                            is QrCodeData.Url -> QrCode(
-                                qrBitmapPath = qrCodeData.qrBitmapPath,
-                                parsedData = QrResult.Link(url = qrCodeData.link),
-                                dateCreated = OffsetDateTime.now().toString(),
-                                userGenerated = false
-                            )
-                            is QrCodeData.Wifi -> QrCode(
-                                qrBitmapPath = qrCodeData.qrBitmapPath,
-                                parsedData = QrResult.Wifi(ssid = qrCodeData.ssid, password = qrCodeData.password, encryptionType = qrCodeData.encryptionType),
-                                dateCreated = OffsetDateTime.now().toString(),
-                                userGenerated = false
-                            )
-                        }
-                        val id = qrCodeRepository.insertQrCode(qrCode)
-                        _navigationEvents.emit(CameraNavigationEvents.OnNavigateToPreviewQr(id)) }
+            if (qrCodeBitmap != null) {
+                val qrCodeData = qrCodeAnalyzer.extractDataFromQr(qrCodeBitmap)
+                qrCodeData?.let {
+                    val qrCode = when (qrCodeData) {
+                        is QrCodeData.ContactDetails -> QrCode(
+                            qrBitmapPath = qrCodeData.qrBitmapPath,
+                            parsedData = QrResult.Contact(
+                                name = qrCodeData.name,
+                                email = qrCodeData.email,
+                                phone = qrCodeData.tel
+                            ),
+                            dateCreated = OffsetDateTime.now().toString(),
+                            userGenerated = false
+                        )
+
+                        is QrCodeData.Geolocation -> QrCode(
+                            qrBitmapPath = qrCodeData.qrBitmapPath,
+                            parsedData = QrResult.Geolocation(
+                                longitude = qrCodeData.longitude,
+                                latitude = qrCodeData.latitude
+                            ),
+                            dateCreated = OffsetDateTime.now().toString(),
+                            userGenerated = false
+                        )
+
+                        is QrCodeData.PhoneNumber -> QrCode(
+                            qrBitmapPath = qrCodeData.qrBitmapPath,
+                            parsedData = QrResult.PhoneNumber(phoneNumber = qrCodeData.phoneNumber),
+                            dateCreated = OffsetDateTime.now().toString(),
+                            userGenerated = false
+                        )
+
+                        is QrCodeData.PlainText -> QrCode(
+                            qrBitmapPath = qrCodeData.qrBitmapPath,
+                            parsedData = QrResult.PlainText(text = qrCodeData.text),
+                            dateCreated = OffsetDateTime.now().toString(),
+                            userGenerated = false
+                        )
+
+                        is QrCodeData.Url -> QrCode(
+                            qrBitmapPath = qrCodeData.qrBitmapPath,
+                            parsedData = QrResult.Link(url = qrCodeData.link),
+                            dateCreated = OffsetDateTime.now().toString(),
+                            userGenerated = false
+                        )
+
+                        is QrCodeData.Wifi -> QrCode(
+                            qrBitmapPath = qrCodeData.qrBitmapPath,
+                            parsedData = QrResult.Wifi(
+                                ssid = qrCodeData.ssid,
+                                password = qrCodeData.password,
+                                encryptionType = qrCodeData.encryptionType
+                            ),
+                            dateCreated = OffsetDateTime.now().toString(),
+                            userGenerated = false
+                        )
+                    }
+                    val id = qrCodeRepository.insertQrCode(qrCode)
+                    _navigationEvents.emit(CameraNavigationEvents.OnNavigateToPreviewQr(id))
                 }
+            }
         }
     }
 
@@ -112,6 +134,7 @@ class CameraViewModel(
 
 data class QrCameraUiState(
     val isLoading: Boolean,
+    val isFlashEnabled: Boolean
 )
 
 sealed interface CameraNavigationEvents{
