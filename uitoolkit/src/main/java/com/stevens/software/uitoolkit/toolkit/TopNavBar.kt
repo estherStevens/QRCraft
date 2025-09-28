@@ -15,6 +15,7 @@ fun TopNavBar(
     backgroundColor: Color,
     titleColour: Color,
     navigationIcon: @Composable () -> Unit = {},
+    trailingIcon: @Composable () -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -27,6 +28,9 @@ fun TopNavBar(
         navigationIcon = navigationIcon,
         colors = TopAppBarDefaults.topAppBarColors().copy(
             containerColor = backgroundColor
-        )
+        ),
+        actions = {
+            trailingIcon()
+        }
     )
 }

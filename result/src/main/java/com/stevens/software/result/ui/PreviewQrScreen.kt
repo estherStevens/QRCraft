@@ -11,6 +11,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -81,6 +85,12 @@ fun PreviewQrView(
                             contentDescription = stringResource(R.string.back)
                         )
                     }
+                },
+                trailingIcon = {
+                    Favourite(
+                        isFavourite = false,
+                        onFavouriteToggle = {}
+                    )
                 }
             )
         }
@@ -98,6 +108,34 @@ fun PreviewQrView(
                 onCopyToClipboard = onCopyToClipboard)
             QrImage(qrCodeBitmap)
         }
+    }
+}
+
+@Composable
+private fun Favourite(
+    isFavourite: Boolean,
+    onFavouriteToggle: (Boolean) -> Unit
+){
+    var isFavourite by remember { mutableStateOf(isFavourite) }
+    val favouriteIcon = when(isFavourite) {
+        true -> painterResource(R.drawable.favourited_icon)
+        false -> painterResource(R.drawable.favourite_icon)
+    }
+    val contentDescription = when(isFavourite) {
+        true -> stringResource(R.string.qr_unfavourite)
+        false -> stringResource(R.string.qr_favourite)
+    }
+    IconButton(
+        onClick = {
+            isFavourite = isFavourite.not()
+            onFavouriteToggle(isFavourite)
+        }
+    ) {
+        Icon(
+            painter = favouriteIcon,
+            tint = MaterialTheme.extendedColours.onOverlay,
+            contentDescription = contentDescription
+        )
     }
 }
 

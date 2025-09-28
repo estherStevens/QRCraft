@@ -22,6 +22,7 @@ class PreviewQrViewModel(
     private val _qrBitmap: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
     private val _qrData: MutableStateFlow<QrCodeData?> = MutableStateFlow(null)
+    private val _isFavourite: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     val uiState: StateFlow<GeneratedQrResultUiState> = combine(
         _qrBitmap,
@@ -31,12 +32,13 @@ class PreviewQrViewModel(
         GeneratedQrResultUiState(
             bitmap = bitmap,
             qrData = qrData,
-            isLoading = false
+            isLoading = false,
+            isFavourite = false
         )
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(),
-        GeneratedQrResultUiState(null, null, true)
+        GeneratedQrResultUiState(bitmap = null, qrData = null, isLoading = true, isFavourite = false)
     )
 
     init {
@@ -52,8 +54,16 @@ class PreviewQrViewModel(
         }
     }
 
+    fun updateFavouriteState(isFavourite: Boolean){
+        viewModelScope.launch {
+//            qrCodeRepository.updateFavouriteStatus(
+//                id = _qrData.value.
+//            )
+        }
+    }
+
     private fun QrResult.toQrCodeData(qrBitmapPath: String): QrCodeData? =
-        when(this){ //todo - ideally dont need to the bitmap path here
+        when(this){
             is QrResult.Contact -> {
                 QrCodeData.ContactDetails(qrBitmapPath = qrBitmapPath, name = this.name, email = this.email, tel = this.phone)
             }
@@ -78,5 +88,6 @@ class PreviewQrViewModel(
 data class GeneratedQrResultUiState(
     val bitmap: Bitmap?,
     val qrData: QrCodeData?,
-    val isLoading: Boolean
+    val isLoading: Boolean,
+    val isFavourite: Boolean
 )

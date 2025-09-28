@@ -53,5 +53,6 @@
     <string name="bottom_sheet_delete">Delete</string>
     <string name="enable_flash">Enable Flash</string>
     <string name="disable_flash">Disable Flash</string>
-
+    <string name="qr_unfavourite">Unfavourite</string>
+    <string name="qr_favourite">Favourite</string>
 </resources>
