@@ -54,6 +54,7 @@ import com.stevens.software.uitoolkit.theme.QRCraftTheme
 import com.stevens.software.uitoolkit.theme.extendedColours
 import com.stevens.software.uitoolkit.toolkit.TopNavBar
 import com.stevens.software.uitoolkit.R
+import com.stevens.software.uitoolkit.toolkit.Favourite
 
 @Composable
 fun QrHistoryScreen(
@@ -77,7 +78,11 @@ fun QrHistoryScreen(
             val shareIntent = Intent.createChooser(sendIntent, null)
             context.startActivity(shareIntent)
         },
-        onNavigateToPreview = onNavigateToPreview
+        onNavigateToPreview = onNavigateToPreview,
+        updateFavouriteState = { id, isFavourite ->
+            viewModel.updateFavouriteState(id, isFavourite)
+        }
+
     )
 }
 
@@ -88,7 +93,8 @@ internal fun QrHistoryView(
     generatedQrs: List<HistoricQrCode>,
     onDeleteQr: (Int) -> Unit,
     onShare: (String) -> Unit,
-    onNavigateToPreview: (Int) -> Unit
+    onNavigateToPreview: (Int) -> Unit,
+    updateFavouriteState: (Int, Boolean) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -140,7 +146,8 @@ internal fun QrHistoryView(
                         },
                         onNavigateToPreview = { id ->
                             onNavigateToPreview(id)
-                        }
+                        },
+                        updateFavouriteState = updateFavouriteState
                     )
                     1 -> historicQrs(
                         historicQrs = generatedQrs,
@@ -148,7 +155,8 @@ internal fun QrHistoryView(
                             selectedQrCode = it
                             showBottomSheet = true
                         },
-                        onNavigateToPreview = onNavigateToPreview
+                        onNavigateToPreview = onNavigateToPreview,
+                        updateFavouriteState = updateFavouriteState
                     )
                 }
             }
@@ -194,7 +202,8 @@ internal fun QrHistoryView(
 private fun LazyListScope.historicQrs(
     historicQrs: List<HistoricQrCode>,
     onShowBottomSheet: (HistoricQrCode) -> Unit,
-    onNavigateToPreview: (Int) -> Unit
+    onNavigateToPreview: (Int) -> Unit,
+    updateFavouriteState: (Int, Boolean) -> Unit
 ){
     when(historicQrs.isEmpty()) {
         true ->  item { EmptyState() }
@@ -206,6 +215,9 @@ private fun LazyListScope.historicQrs(
                 },
                 onNavigateToPreview = { historicQrCodeId ->
                     onNavigateToPreview(historicQrCodeId)
+                },
+                updateFavouriteState = { id, isFavourite ->
+                    updateFavouriteState(id, isFavourite)
                 }
             )
         }
@@ -260,7 +272,8 @@ private fun Tabs(
 private fun QrHistoryRow(
     qrHistoricQrCode: HistoricQrCode,
     onShowBottomSheet: (HistoricQrCode) -> Unit,
-    onNavigateToPreview: (Int) -> Unit
+    onNavigateToPreview: (Int) -> Unit,
+    updateFavouriteState: (Int, Boolean) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -281,6 +294,7 @@ private fun QrHistoryRow(
     ) {
         Row(modifier = Modifier
             .padding(12.dp)
+            .fillMaxWidth()
         ) {
             Icon(
                 painter = qrHistoricQrCode.toQrTypeImage(),
@@ -288,7 +302,9 @@ private fun QrHistoryRow(
                 contentDescription = null
             )
             Spacer(Modifier.size(12.dp))
-            Column {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
                     text = qrHistoricQrCode.toQrTypeTitle(),
                     style = MaterialTheme.typography.titleSmall,
@@ -301,7 +317,6 @@ private fun QrHistoryRow(
                     color = MaterialTheme.extendedColours.onSurfaceAlt,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 2,
-                    modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.size(8.dp))
                 Text(
@@ -310,6 +325,13 @@ private fun QrHistoryRow(
                     color = MaterialTheme.extendedColours.onSurfaceDisabled
                 )
             }
+            Favourite(
+                isFavourite = qrHistoricQrCode.isFavourite,
+                iconColour = MaterialTheme.colorScheme.onSurface,
+                onFavouriteToggle = {
+                    updateFavouriteState(qrHistoricQrCode.id, it)
+                }
+            )
         }
     }
 }
@@ -486,7 +508,8 @@ fun ScanHistoryScreenPreview() {
                     password = "esther@gmail.com",
                     encryptionType = "2",
                     createdAt = "",
-                    userGenerated = true
+                    userGenerated = true,
+                    isFavourite = false
                 ),
                 HistoricQrCode.Wifi(
                     id = 2,
@@ -494,13 +517,15 @@ fun ScanHistoryScreenPreview() {
                     password = "esther@gmail.com",
                     encryptionType = "2",
                     createdAt = "",
-                    userGenerated = true
+                    userGenerated = true,
+                    isFavourite = true
                 )
             ),
             emptyList(),
             onDeleteQr = {},
             onShare = {},
-            onNavigateToPreview = {}
+            onNavigateToPreview = {},
+            updateFavouriteState = {_,_ ->}
         )
     }
 }

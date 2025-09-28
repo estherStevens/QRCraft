@@ -37,10 +37,21 @@ class QrHistoryViewModel(
         }
     }
 
+    fun updateFavouriteState(id: Int, isFavourite: Boolean){
+        viewModelScope.launch {
+            qrCodeRepository.updateFavouriteStatus(
+                id = id,
+                isFavourite = isFavourite
+            )
+
+        }
+    }
+
     private fun QrCode.toHistoricQrCode() : HistoricQrCode? {
         val id = this.id
         val parsedData = this.parsedData
         val createdAt = this.dateCreated
+        val isFavourite = this.isFavourite
         return when(parsedData){
             is QrResult.Contact -> {
                 ContactDetails(
@@ -49,7 +60,8 @@ class QrHistoryViewModel(
                     email = parsedData.email,
                     tel = parsedData.phone,
                     createdAt = createdAt.getCreatedAtTime(),
-                    userGenerated = this.userGenerated
+                    userGenerated = this.userGenerated,
+                    isFavourite = isFavourite
                 )
             }
             is QrResult.Geolocation -> {
@@ -58,7 +70,8 @@ class QrHistoryViewModel(
                     latitude = parsedData.latitude,
                     longitude = parsedData.longitude,
                     createdAt = createdAt.getCreatedAtTime(),
-                    userGenerated = this.userGenerated
+                    userGenerated = this.userGenerated,
+                    isFavourite = isFavourite
                 )
             }
             is QrResult.Link -> {
@@ -66,7 +79,8 @@ class QrHistoryViewModel(
                     id = id,
                     link = parsedData.url,
                     createdAt = createdAt.getCreatedAtTime(),
-                    userGenerated = this.userGenerated
+                    userGenerated = this.userGenerated,
+                    isFavourite = isFavourite
                 )
             }
             is QrResult.PhoneNumber -> {
@@ -74,7 +88,8 @@ class QrHistoryViewModel(
                     id = id,
                     phoneNumber = parsedData.phoneNumber,
                     createdAt = createdAt.getCreatedAtTime(),
-                    userGenerated = this.userGenerated
+                    userGenerated = this.userGenerated,
+                    isFavourite = isFavourite
                 )
             }
             is QrResult.PlainText -> {
@@ -82,7 +97,8 @@ class QrHistoryViewModel(
                     id = id,
                     text = parsedData.text,
                     createdAt = createdAt.getCreatedAtTime(),
-                    userGenerated = this.userGenerated
+                    userGenerated = this.userGenerated,
+                    isFavourite = isFavourite
                 )
             }
             is QrResult.Wifi -> {
@@ -92,7 +108,8 @@ class QrHistoryViewModel(
                     password = parsedData.password,
                     encryptionType = parsedData.encryptionType,
                     createdAt = createdAt.getCreatedAtTime(),
-                    userGenerated = this.userGenerated
+                    userGenerated = this.userGenerated,
+                    isFavourite = isFavourite
                 )
             }
             null -> null
@@ -116,11 +133,12 @@ sealed class HistoricQrCode {
     open val id: Int = -1
     open val userGenerated: Boolean = false
     open val createdAt: String = ""
+    open val isFavourite: Boolean = false
 
-    data class ContactDetails(override val id: Int, val name: String, val tel: String, val email: String, override val createdAt: String, override val userGenerated: Boolean) : HistoricQrCode()
-    data class Url(override val id: Int, val link: String, override val createdAt: String, override val userGenerated: Boolean) : HistoricQrCode()
-    data class Geolocation(override val id: Int, val latitude: String, val longitude: String, override val createdAt: String, override val userGenerated: Boolean) : HistoricQrCode()
-    data class PhoneNumber(override val id: Int, val phoneNumber: String, override val createdAt: String, override val userGenerated: Boolean) : HistoricQrCode()
-    data class Wifi(override val id: Int, val ssid: String, val password: String, val encryptionType: String, override val createdAt: String, override val userGenerated: Boolean) : HistoricQrCode()
-    data class PlainText(override val id: Int, val text: String, override val createdAt: String, override val userGenerated: Boolean) : HistoricQrCode()
+    data class ContactDetails(override val id: Int, override val isFavourite: Boolean, val name: String, val tel: String, val email: String, override val createdAt: String, override val userGenerated: Boolean) : HistoricQrCode()
+    data class Url(override val id: Int, override val isFavourite: Boolean, val link: String, override val createdAt: String, override val userGenerated: Boolean) : HistoricQrCode()
+    data class Geolocation(override val id: Int, override val isFavourite: Boolean, val latitude: String, val longitude: String, override val createdAt: String, override val userGenerated: Boolean) : HistoricQrCode()
+    data class PhoneNumber(override val id: Int, override val isFavourite: Boolean, val phoneNumber: String, override val createdAt: String, override val userGenerated: Boolean) : HistoricQrCode()
+    data class Wifi(override val id: Int, override val isFavourite: Boolean, val ssid: String, val password: String, val encryptionType: String, override val createdAt: String, override val userGenerated: Boolean) : HistoricQrCode()
+    data class PlainText(override val id: Int, override val isFavourite: Boolean, val text: String, override val createdAt: String, override val userGenerated: Boolean) : HistoricQrCode()
 }

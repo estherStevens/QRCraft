@@ -11,10 +11,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -30,6 +26,7 @@ import com.stevens.software.result.data.PreviewQrCodeData
 import com.stevens.software.uitoolkit.R
 import com.stevens.software.uitoolkit.theme.QRCraftTheme
 import com.stevens.software.uitoolkit.theme.extendedColours
+import com.stevens.software.uitoolkit.toolkit.Favourite
 import com.stevens.software.uitoolkit.toolkit.TopNavBar
 
 @Composable
@@ -93,6 +90,7 @@ fun PreviewQrView(
                 trailingIcon = {
                     Favourite(
                         isFavourite = qrCodeData?.isFavourite ?: false,
+                        iconColour = MaterialTheme.extendedColours.onOverlay,
                         onFavouriteToggle = onFavouriteToggle
                     )
                 }
@@ -112,32 +110,6 @@ fun PreviewQrView(
                 onCopyToClipboard = onCopyToClipboard)
             QrImage(qrCodeBitmap)
         }
-    }
-}
-
-@Composable
-private fun Favourite(
-    isFavourite: Boolean,
-    onFavouriteToggle: (Boolean) -> Unit
-){
-    val favouriteIcon = when(isFavourite) {
-        true -> painterResource(R.drawable.favourited_icon)
-        false -> painterResource(R.drawable.favourite_icon)
-    }
-    val contentDescription = when(isFavourite) {
-        true -> stringResource(R.string.qr_unfavourite)
-        false -> stringResource(R.string.qr_favourite)
-    }
-    IconButton(
-        onClick = {
-            onFavouriteToggle(isFavourite.not())
-        }
-    ) {
-        Icon(
-            painter = favouriteIcon,
-            tint = MaterialTheme.extendedColours.onOverlay,
-            contentDescription = contentDescription
-        )
     }
 }
 
