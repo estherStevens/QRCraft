@@ -23,4 +23,7 @@ interface QrCodeDao{
 
     @Query("Select * from qrCodes")
     fun getAllQrCodes() : Flow<List<QrCode>>
+
+    @Query("UPDATE qrCodes SET isFavourite = :isFavourite WHERE id = :id")
+    suspend fun updateFavouriteStatus(id: Int, isFavourite: Boolean)
 }

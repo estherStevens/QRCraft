@@ -16,18 +16,18 @@ class QrCodeAnalyzer(val context: Context){
     private val scanner = BarcodeScanning.getClient(MlKitScannerOptions.QrCode)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun extractDataFromQr(bitmap: Bitmap) : QrCodeData? {
+    suspend fun extractDataFromQr(bitmap: Bitmap) : AnalyzedQrCodeData? {
         return suspendCancellableCoroutine { continuation ->
             scanner.process(InputImage.fromBitmap(bitmap, 0))
                 .addOnSuccessListener { qrCodes ->
                     if (!continuation.isActive) return@addOnSuccessListener
                     if (qrCodes.isNotEmpty()) {
-                        var qrCodeData: QrCodeData? = null
+                        var qrCodeData: AnalyzedQrCodeData? = null
                         val localBitmapPath = saveBitmapToCache(context, bitmap)
                         qrCodes.forEach {
                             val rawValue = it.rawValue
                             if (rawValue.isNullOrBlank().not()) {
-                                qrCodeData = it.mapToQrCodeData(localBitmapPath)
+                                qrCodeData = it.mapToAnalyzedQrCodeData(localBitmapPath)
                             }
                         }
                         continuation.resume(qrCodeData)
@@ -42,10 +42,10 @@ class QrCodeAnalyzer(val context: Context){
     }
 }
 
-private fun Barcode.mapToQrCodeData(qrBitmapPath: String) =
+private fun Barcode.mapToAnalyzedQrCodeData(qrBitmapPath: String) =
     when(this.valueType) {
         Barcode.TYPE_WIFI -> {
-            QrCodeData.Wifi(
+            AnalyzedQrCodeData.Wifi(
                 qrBitmapPath = qrBitmapPath,
                 ssid = this.wifi?.ssid .orEmpty(),
                 password = this.wifi?.password.orEmpty(),
@@ -53,26 +53,26 @@ private fun Barcode.mapToQrCodeData(qrBitmapPath: String) =
             )
         }
         Barcode.TYPE_PHONE -> {
-            QrCodeData.PhoneNumber(
+            AnalyzedQrCodeData.PhoneNumber(
                 qrBitmapPath = qrBitmapPath,
                 phoneNumber = this.phone?.number.orEmpty()
             )
         }
         Barcode.TYPE_GEO -> {
-            QrCodeData.Geolocation(
+            AnalyzedQrCodeData.Geolocation(
                 qrBitmapPath = qrBitmapPath,
                 latitude = this.geoPoint?.lat.toString(),
                 longitude = this.geoPoint?.lng.toString()
             )
         }
         Barcode.TYPE_URL -> {
-            QrCodeData.Url(
+            AnalyzedQrCodeData.Url(
                 qrBitmapPath = qrBitmapPath,
                 link = this.url?.url.orEmpty()
             )
         }
         Barcode.TYPE_CONTACT_INFO -> {
-            QrCodeData.ContactDetails(
+            AnalyzedQrCodeData.ContactDetails(
                 qrBitmapPath = qrBitmapPath,
                 name = this.contactInfo?.name?.formattedName.orEmpty(),
                 tel = this.contactInfo?.phones?.first()?.number.orEmpty(),
@@ -80,7 +80,7 @@ private fun Barcode.mapToQrCodeData(qrBitmapPath: String) =
             )
         }
         Barcode.TYPE_TEXT -> {
-            QrCodeData.PlainText(
+            AnalyzedQrCodeData.PlainText(
                 qrBitmapPath = qrBitmapPath,
                 text = this.displayValue.orEmpty()
             )

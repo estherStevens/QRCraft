@@ -4,7 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.stevens.software.analyzer.QrCodeData
+import com.stevens.software.analyzer.AnalyzedQrCodeData
 import com.stevens.software.generator.QrType
 import com.stevens.software.generator.data.QrGeneratorRepository
 import com.stevens.software.core.QrCode
@@ -102,7 +102,7 @@ class QrDataEntryViewModel(
             val qrCodeData = qrCodeAnalyzer.extractDataFromQr(bitmap)
             qrCodeData?.let {
                 val qrCode = when(qrCodeData){
-                    is QrCodeData.ContactDetails -> QrCode( //todo maybe move this logic to the core module
+                    is AnalyzedQrCodeData.ContactDetails -> QrCode( //todo maybe move this logic to the core module
                         qrBitmapPath = qrCodeData.qrBitmapPath,
                         parsedData = QrResult.Contact(
                             name = qrCodeData.name,
@@ -112,31 +112,31 @@ class QrDataEntryViewModel(
                         dateCreated = OffsetDateTime.now().toString(),
                         userGenerated = true
                     )
-                    is QrCodeData.Geolocation -> QrCode(
+                    is AnalyzedQrCodeData.Geolocation -> QrCode(
                         qrBitmapPath = qrCodeData.qrBitmapPath,
                         parsedData = QrResult.Geolocation(longitude = qrCodeData.longitude, latitude = qrCodeData.latitude),
                         dateCreated = OffsetDateTime.now().toString(),
                         userGenerated = true
                     )
-                    is QrCodeData.PhoneNumber -> QrCode(
+                    is AnalyzedQrCodeData.PhoneNumber -> QrCode(
                         qrBitmapPath = qrCodeData.qrBitmapPath,
                         parsedData = QrResult.PhoneNumber(phoneNumber = qrCodeData.phoneNumber),
                         dateCreated = OffsetDateTime.now().toString(),
                         userGenerated = true
                     )
-                    is QrCodeData.PlainText -> QrCode(
+                    is AnalyzedQrCodeData.PlainText -> QrCode(
                         qrBitmapPath = qrCodeData.qrBitmapPath,
                         parsedData = QrResult.PlainText(text = qrCodeData.text),
                         dateCreated = OffsetDateTime.now().toString(),
                         userGenerated = true
                     )
-                    is QrCodeData.Url -> QrCode(
+                    is AnalyzedQrCodeData.Url -> QrCode(
                         qrBitmapPath = qrCodeData.qrBitmapPath,
                         parsedData = QrResult.Link(url = qrCodeData.link),
                         dateCreated = OffsetDateTime.now().toString(),
                         userGenerated = true
                     )
-                    is QrCodeData.Wifi -> QrCode(
+                    is AnalyzedQrCodeData.Wifi -> QrCode(
                         qrBitmapPath = qrCodeData.qrBitmapPath,
                         parsedData = QrResult.Wifi(ssid = qrCodeData.ssid, password = qrCodeData.password, encryptionType = qrCodeData.encryptionType),
                         dateCreated = OffsetDateTime.now().toString(),

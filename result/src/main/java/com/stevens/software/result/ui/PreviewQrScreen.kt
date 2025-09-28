@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.stevens.software.analyzer.QrCodeData
+import com.stevens.software.result.data.PreviewQrCodeData
 import com.stevens.software.uitoolkit.R
 import com.stevens.software.uitoolkit.theme.QRCraftTheme
 import com.stevens.software.uitoolkit.theme.extendedColours
@@ -63,7 +63,7 @@ fun PreviewQrScreen(
 @Composable
 fun PreviewQrView(
     qrCodeBitmap: Bitmap?,
-    qrCodeData: QrCodeData?,
+    qrCodeData: PreviewQrCodeData?,
     onNavigateBack: () -> Unit,
     onShare: (String) -> Unit,
     onCopyToClipboard: (String) -> Unit
@@ -141,7 +141,7 @@ private fun Favourite(
 
 @Preview
 @Composable
-private fun PreviewQrViewPreview(@PreviewParameter(PreviewQrPreviewParameterProvider::class) qrCodeData: QrCodeData){
+private fun PreviewQrViewPreview(@PreviewParameter(PreviewQrPreviewParameterProvider::class) qrCodeData: PreviewQrCodeData){
     QRCraftTheme {
         PreviewQrView(
             qrCodeBitmap = null,
@@ -154,36 +154,42 @@ private fun PreviewQrViewPreview(@PreviewParameter(PreviewQrPreviewParameterProv
     }
 }
 
-class PreviewQrPreviewParameterProvider(): PreviewParameterProvider<QrCodeData> {
+class PreviewQrPreviewParameterProvider(): PreviewParameterProvider<PreviewQrCodeData> {
     override val values = sequenceOf(
-        QrCodeData.PhoneNumber(
+        PreviewQrCodeData.PhoneNumber(
             qrBitmapPath = "",
             phoneNumber = "",
+            isFavourite = false
         ),
-        QrCodeData.Url(
+        PreviewQrCodeData.Url(
             qrBitmapPath = "",
             link = "",
+            isFavourite = false
         ),
-        QrCodeData.PlainText(
+        PreviewQrCodeData.PlainText(
             qrBitmapPath = "",
             text = "",
+            isFavourite = true
         ),
-        QrCodeData.Geolocation(
+        PreviewQrCodeData.Geolocation(
             qrBitmapPath = "",
             longitude = "",
             latitude = "",
+            isFavourite = true
         ),
-        QrCodeData.ContactDetails(
+        PreviewQrCodeData.ContactDetails(
             qrBitmapPath = "",
             name = "",
             tel = "",
-            email = ""
+            email = "",
+            isFavourite = false
         ),
-        QrCodeData.Wifi(
+        PreviewQrCodeData.Wifi(
             qrBitmapPath = "",
             ssid = "",
             password = "",
-            encryptionType = ""
+            encryptionType = "",
+            isFavourite = false
         ),
     )
 }

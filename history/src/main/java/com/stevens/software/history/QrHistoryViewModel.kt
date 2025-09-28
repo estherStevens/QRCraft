@@ -1,10 +1,7 @@
 package com.stevens.software.history
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.stevens.software.analyzer.QrCodeData
 import com.stevens.software.core.QrCode
 import com.stevens.software.core.QrCodeRepository
 import com.stevens.software.core.QrResult

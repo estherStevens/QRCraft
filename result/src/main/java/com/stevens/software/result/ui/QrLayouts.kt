@@ -22,13 +22,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.stevens.software.analyzer.QrCodeData
+import com.stevens.software.result.data.PreviewQrCodeData
 import com.stevens.software.uitoolkit.R
 import com.stevens.software.uitoolkit.theme.extendedColours
 
 
 @Composable
-internal fun PlainText(qrCodeData: QrCodeData.PlainText) {
+internal fun PlainText(qrCodeData: PreviewQrCodeData.PlainText) {
     var showMoreIsEnabled by remember { mutableStateOf(false) }
     var shouldShowMoreButton by remember { mutableStateOf(false) }
     val maxLines = if (showMoreIsEnabled) Int.MAX_VALUE else 6
@@ -81,7 +81,7 @@ internal fun PlainText(qrCodeData: QrCodeData.PlainText) {
 }
 
 @Composable
-internal fun PhoneNumber(qrCodeData: QrCodeData.PhoneNumber) {
+internal fun PhoneNumber(qrCodeData: PreviewQrCodeData.PhoneNumber) {
     Text(
         text = stringResource(R.string.qr_type_phone_number),
         style = MaterialTheme.typography.titleMedium,
@@ -97,7 +97,7 @@ internal fun PhoneNumber(qrCodeData: QrCodeData.PhoneNumber) {
 }
 
 @Composable
-internal fun Geolocation(qrCodeData: QrCodeData.Geolocation) {
+internal fun Geolocation(qrCodeData: PreviewQrCodeData.Geolocation) {
     Text(
         text = stringResource(R.string.qr_type_geolocation),
         style = MaterialTheme.typography.titleMedium,
@@ -119,7 +119,7 @@ internal fun Geolocation(qrCodeData: QrCodeData.Geolocation) {
 }
 
 @Composable
-internal fun ContactDetails(qrCodeData: QrCodeData.ContactDetails) {
+internal fun ContactDetails(qrCodeData: PreviewQrCodeData.ContactDetails) {
     Text(
         text = stringResource(R.string.qr_type_contact_details),
         style = MaterialTheme.typography.titleMedium,
@@ -145,7 +145,7 @@ internal fun ContactDetails(qrCodeData: QrCodeData.ContactDetails) {
 }
 
 @Composable
-internal fun Link(qrCodeData: QrCodeData.Url) {
+internal fun Link(qrCodeData: PreviewQrCodeData.Url) {
     Text(
         text = stringResource(R.string.qr_type_link),
         style = MaterialTheme.typography.titleMedium,
@@ -163,7 +163,7 @@ internal fun Link(qrCodeData: QrCodeData.Url) {
 }
 
 @Composable
-internal fun Wifi(qrCodeData: QrCodeData.Wifi) {
+internal fun Wifi(qrCodeData: PreviewQrCodeData.Wifi) {
     Text(
         text = stringResource(R.string.qr_type_wifi),
         style = MaterialTheme.typography.titleMedium,

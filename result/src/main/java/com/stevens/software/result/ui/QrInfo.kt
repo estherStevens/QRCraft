@@ -22,13 +22,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.stevens.software.analyzer.QrCodeData
+import com.stevens.software.result.data.PreviewQrCodeData
 import com.stevens.software.uitoolkit.R
 import com.stevens.software.uitoolkit.theme.extendedColours
 
 @Composable
 internal fun QrInfo(
-    qrCodeData: QrCodeData?,
+    qrCodeData: PreviewQrCodeData?,
     onShare: (String) -> Unit,
     onCopyToClipboard: (String) -> Unit
 ) {
@@ -50,12 +50,12 @@ internal fun QrInfo(
         ) {
             Spacer(Modifier.size(70.dp))
             when (qrCodeData) {
-                is QrCodeData.ContactDetails -> ContactDetails(qrCodeData)
-                is QrCodeData.Geolocation -> Geolocation(qrCodeData)
-                is QrCodeData.PhoneNumber -> PhoneNumber(qrCodeData)
-                is QrCodeData.PlainText -> PlainText(qrCodeData)
-                is QrCodeData.Url -> Link(qrCodeData)
-                is QrCodeData.Wifi -> Wifi(qrCodeData)
+                is PreviewQrCodeData.ContactDetails -> ContactDetails(qrCodeData)
+                is PreviewQrCodeData.Geolocation -> Geolocation(qrCodeData)
+                is PreviewQrCodeData.PhoneNumber -> PhoneNumber(qrCodeData)
+                is PreviewQrCodeData.PlainText -> PlainText(qrCodeData)
+                is PreviewQrCodeData.Url -> Link(qrCodeData)
+                is PreviewQrCodeData.Wifi -> Wifi(qrCodeData)
             }
             Spacer(Modifier.size(24.dp))
             ActionButtons(
@@ -141,22 +141,22 @@ private fun CopyButton(
     }
 }
 
-private fun extractDataAndConvertToString(qrCodeData: QrCodeData): String =
+private fun extractDataAndConvertToString(qrCodeData: PreviewQrCodeData): String =
     when(qrCodeData){
-        is QrCodeData.ContactDetails -> buildString {
+        is PreviewQrCodeData.ContactDetails -> buildString {
             appendLine(qrCodeData.name)
             appendLine(qrCodeData.tel)
             appendLine(qrCodeData.email)
         }
-        is QrCodeData.Geolocation -> buildString {
+        is PreviewQrCodeData.Geolocation -> buildString {
             append(qrCodeData.latitude)
             append(", ")
             append(qrCodeData.longitude)
         }
-        is QrCodeData.PhoneNumber -> qrCodeData.phoneNumber
-        is QrCodeData.PlainText -> qrCodeData.text
-        is QrCodeData.Url -> qrCodeData.link
-        is QrCodeData.Wifi -> buildString {
+        is PreviewQrCodeData.PhoneNumber -> qrCodeData.phoneNumber
+        is PreviewQrCodeData.PlainText -> qrCodeData.text
+        is PreviewQrCodeData.Url -> qrCodeData.link
+        is PreviewQrCodeData.Wifi -> buildString {
             appendLine(qrCodeData.ssid)
             appendLine(qrCodeData.password)
             appendLine(qrCodeData.encryptionType)

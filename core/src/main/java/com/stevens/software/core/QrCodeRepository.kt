@@ -15,4 +15,6 @@ class QrCodeRepository(private val context: Context) {
     suspend fun deleteQrCode(id: Int) = qrCodeDao.deleteById(id)
 
     suspend fun updateQrCode(qrCode: QrCode) = qrCodeDao.update(qrCode)
+
+    suspend fun updateFavouriteStatus(id: Int, isFavourite: Boolean) = qrCodeDao.updateFavouriteStatus(id, isFavourite)
 }

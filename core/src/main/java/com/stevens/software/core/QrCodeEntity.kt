@@ -11,4 +11,5 @@ data class QrCode(
     val parsedData: QrResult?,
     val dateCreated: String,
     val userGenerated: Boolean,
+    val isFavourite: Boolean = false
 )

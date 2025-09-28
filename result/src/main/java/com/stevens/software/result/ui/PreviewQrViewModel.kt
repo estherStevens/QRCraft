@@ -4,9 +4,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.stevens.software.analyzer.QrCodeData
 import com.stevens.software.core.QrCodeRepository
 import com.stevens.software.core.QrResult
+import com.stevens.software.result.data.PreviewQrCodeData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +21,7 @@ class PreviewQrViewModel(
 
     private val _qrBitmap: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(true)
-    private val _qrData: MutableStateFlow<QrCodeData?> = MutableStateFlow(null)
+    private val _qrData: MutableStateFlow<PreviewQrCodeData?> = MutableStateFlow(null)
     private val _isFavourite: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     val uiState: StateFlow<GeneratedQrResultUiState> = combine(
@@ -45,7 +45,7 @@ class PreviewQrViewModel(
         viewModelScope.launch {
             qrCodeRepository.getQrCode(qrCodeId).collect { qrCode ->
                 qrCode.let {
-                    val qrData = it?.parsedData?.toQrCodeData(it.qrBitmapPath)
+                    val qrData = it?.parsedData?.toQrCodeData(it.qrBitmapPath, it.isFavourite)
                     val bitmap = BitmapFactory.decodeFile(qrData?.qrBitmapPath)
                     _qrBitmap.emit(bitmap)
                     _qrData.emit(qrData)
@@ -62,32 +62,32 @@ class PreviewQrViewModel(
         }
     }
 
-    private fun QrResult.toQrCodeData(qrBitmapPath: String): QrCodeData? =
+    private fun QrResult.toQrCodeData(qrBitmapPath: String, isFavourite: Boolean): PreviewQrCodeData? =
         when(this){
             is QrResult.Contact -> {
-                QrCodeData.ContactDetails(qrBitmapPath = qrBitmapPath, name = this.name, email = this.email, tel = this.phone)
+                PreviewQrCodeData.ContactDetails(qrBitmapPath = qrBitmapPath, name = this.name, email = this.email, tel = this.phone, isFavourite = isFavourite)
             }
             is QrResult.Geolocation -> {
-                QrCodeData.Geolocation(qrBitmapPath = qrBitmapPath, longitude = this.longitude, latitude = this.latitude)
+                PreviewQrCodeData.Geolocation(qrBitmapPath = qrBitmapPath, longitude = this.longitude, latitude = this.latitude, isFavourite = isFavourite)
             }
             is QrResult.Link -> {
-                QrCodeData.Url(qrBitmapPath = qrBitmapPath, link = this.url)
+                PreviewQrCodeData.Url(qrBitmapPath = qrBitmapPath, link = this.url, isFavourite = isFavourite)
             }
             is QrResult.PhoneNumber -> {
-                QrCodeData.PhoneNumber(qrBitmapPath = qrBitmapPath, phoneNumber = this.phoneNumber)
+                PreviewQrCodeData.PhoneNumber(qrBitmapPath = qrBitmapPath, phoneNumber = this.phoneNumber, isFavourite = isFavourite)
             }
             is QrResult.PlainText -> {
-                QrCodeData.PlainText(qrBitmapPath = qrBitmapPath, text = this.text)
+                PreviewQrCodeData.PlainText(qrBitmapPath = qrBitmapPath, text = this.text, isFavourite = isFavourite)
             }
             is QrResult.Wifi -> {
-                QrCodeData.Wifi(qrBitmapPath = qrBitmapPath, ssid = this.ssid, password = this.password, encryptionType = this.encryptionType)
+                PreviewQrCodeData.Wifi(qrBitmapPath = qrBitmapPath, ssid = this.ssid, password = this.password, encryptionType = this.encryptionType, isFavourite = isFavourite)
             }
         }
 }
 
 data class GeneratedQrResultUiState(
     val bitmap: Bitmap?,
-    val qrData: QrCodeData?,
+    val qrData: PreviewQrCodeData?,
     val isLoading: Boolean,
     val isFavourite: Boolean
 )
