@@ -28,12 +28,13 @@ class PreviewQrViewModel(
         _qrBitmap,
         _qrData,
         _isLoading,
-    ) { bitmap, qrData, isLoading->
+        _isFavourite
+    ) { bitmap, qrData, isLoading, isFavourite ->
         GeneratedQrResultUiState(
             bitmap = bitmap,
             qrData = qrData,
             isLoading = false,
-            isFavourite = false
+            isFavourite = isFavourite
         )
     }.stateIn(
         viewModelScope,
@@ -45,10 +46,11 @@ class PreviewQrViewModel(
         viewModelScope.launch {
             qrCodeRepository.getQrCode(qrCodeId).collect { qrCode ->
                 qrCode.let {
-                    val qrData = it?.parsedData?.toQrCodeData(it.qrBitmapPath, it.isFavourite)
+                    val qrData = it?.parsedData?.toQrCodeData(it.id, it.qrBitmapPath, it.isFavourite)
                     val bitmap = BitmapFactory.decodeFile(qrData?.qrBitmapPath)
                     _qrBitmap.emit(bitmap)
                     _qrData.emit(qrData)
+                    _isFavourite.emit(qrData?.isFavourite ?: false)
                 }
             }
         }
@@ -56,31 +58,34 @@ class PreviewQrViewModel(
 
     fun updateFavouriteState(isFavourite: Boolean){
         viewModelScope.launch {
-//            qrCodeRepository.updateFavouriteStatus(
-//                id = _qrData.value.
-//            )
+            uiState.value.qrData?.id?.let {
+                qrCodeRepository.updateFavouriteStatus(
+                    id = it,
+                    isFavourite = isFavourite
+                )
+            }
         }
     }
 
-    private fun QrResult.toQrCodeData(qrBitmapPath: String, isFavourite: Boolean): PreviewQrCodeData? =
+    private fun QrResult.toQrCodeData(id: Int, qrBitmapPath: String, isFavourite: Boolean): PreviewQrCodeData? =
         when(this){
             is QrResult.Contact -> {
-                PreviewQrCodeData.ContactDetails(qrBitmapPath = qrBitmapPath, name = this.name, email = this.email, tel = this.phone, isFavourite = isFavourite)
+                PreviewQrCodeData.ContactDetails(id = id, qrBitmapPath = qrBitmapPath, name = this.name, email = this.email, tel = this.phone, isFavourite = isFavourite)
             }
             is QrResult.Geolocation -> {
-                PreviewQrCodeData.Geolocation(qrBitmapPath = qrBitmapPath, longitude = this.longitude, latitude = this.latitude, isFavourite = isFavourite)
+                PreviewQrCodeData.Geolocation(id = id, qrBitmapPath = qrBitmapPath, longitude = this.longitude, latitude = this.latitude, isFavourite = isFavourite)
             }
             is QrResult.Link -> {
-                PreviewQrCodeData.Url(qrBitmapPath = qrBitmapPath, link = this.url, isFavourite = isFavourite)
+                PreviewQrCodeData.Url(id = id, qrBitmapPath = qrBitmapPath, link = this.url, isFavourite = isFavourite)
             }
             is QrResult.PhoneNumber -> {
-                PreviewQrCodeData.PhoneNumber(qrBitmapPath = qrBitmapPath, phoneNumber = this.phoneNumber, isFavourite = isFavourite)
+                PreviewQrCodeData.PhoneNumber(id = id, qrBitmapPath = qrBitmapPath, phoneNumber = this.phoneNumber, isFavourite = isFavourite)
             }
             is QrResult.PlainText -> {
-                PreviewQrCodeData.PlainText(qrBitmapPath = qrBitmapPath, text = this.text, isFavourite = isFavourite)
+                PreviewQrCodeData.PlainText(id = id, qrBitmapPath = qrBitmapPath, text = this.text, isFavourite = isFavourite)
             }
             is QrResult.Wifi -> {
-                PreviewQrCodeData.Wifi(qrBitmapPath = qrBitmapPath, ssid = this.ssid, password = this.password, encryptionType = this.encryptionType, isFavourite = isFavourite)
+                PreviewQrCodeData.Wifi(id = id, qrBitmapPath = qrBitmapPath, ssid = this.ssid, password = this.password, encryptionType = this.encryptionType, isFavourite = isFavourite)
             }
         }
 }

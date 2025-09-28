@@ -56,6 +56,9 @@ fun PreviewQrScreen(
         },
         onCopyToClipboard = {
             clipboardManager.setText(AnnotatedString(it))
+        },
+        onFavouriteToggle = {
+            viewModel.updateFavouriteState(it)
         }
     )
 }
@@ -66,7 +69,8 @@ fun PreviewQrView(
     qrCodeData: PreviewQrCodeData?,
     onNavigateBack: () -> Unit,
     onShare: (String) -> Unit,
-    onCopyToClipboard: (String) -> Unit
+    onCopyToClipboard: (String) -> Unit,
+    onFavouriteToggle: (Boolean) -> Unit
 ){
     Scaffold(
         modifier = Modifier.background(color = MaterialTheme.colorScheme.onSurface),
@@ -88,8 +92,8 @@ fun PreviewQrView(
                 },
                 trailingIcon = {
                     Favourite(
-                        isFavourite = false,
-                        onFavouriteToggle = {}
+                        isFavourite = qrCodeData?.isFavourite ?: false,
+                        onFavouriteToggle = onFavouriteToggle
                     )
                 }
             )
@@ -116,7 +120,6 @@ private fun Favourite(
     isFavourite: Boolean,
     onFavouriteToggle: (Boolean) -> Unit
 ){
-    var isFavourite by remember { mutableStateOf(isFavourite) }
     val favouriteIcon = when(isFavourite) {
         true -> painterResource(R.drawable.favourited_icon)
         false -> painterResource(R.drawable.favourite_icon)
@@ -127,8 +130,7 @@ private fun Favourite(
     }
     IconButton(
         onClick = {
-            isFavourite = isFavourite.not()
-            onFavouriteToggle(isFavourite)
+            onFavouriteToggle(isFavourite.not())
         }
     ) {
         Icon(
@@ -148,8 +150,8 @@ private fun PreviewQrViewPreview(@PreviewParameter(PreviewQrPreviewParameterProv
             qrCodeData = qrCodeData,
             onNavigateBack = {},
             onShare = {},
-            onCopyToClipboard = {}
-
+            onCopyToClipboard = {},
+            onFavouriteToggle = {}
         )
     }
 }
@@ -157,27 +159,32 @@ private fun PreviewQrViewPreview(@PreviewParameter(PreviewQrPreviewParameterProv
 class PreviewQrPreviewParameterProvider(): PreviewParameterProvider<PreviewQrCodeData> {
     override val values = sequenceOf(
         PreviewQrCodeData.PhoneNumber(
+            id = 1,
             qrBitmapPath = "",
             phoneNumber = "",
             isFavourite = false
         ),
         PreviewQrCodeData.Url(
+            id = 2,
             qrBitmapPath = "",
             link = "",
             isFavourite = false
         ),
         PreviewQrCodeData.PlainText(
+            id = 3,
             qrBitmapPath = "",
             text = "",
             isFavourite = true
         ),
         PreviewQrCodeData.Geolocation(
+            id = 4,
             qrBitmapPath = "",
             longitude = "",
             latitude = "",
             isFavourite = true
         ),
         PreviewQrCodeData.ContactDetails(
+            id = 5,
             qrBitmapPath = "",
             name = "",
             tel = "",
@@ -185,6 +192,7 @@ class PreviewQrPreviewParameterProvider(): PreviewParameterProvider<PreviewQrCod
             isFavourite = false
         ),
         PreviewQrCodeData.Wifi(
+            id = 6,
             qrBitmapPath = "",
             ssid = "",
             password = "",

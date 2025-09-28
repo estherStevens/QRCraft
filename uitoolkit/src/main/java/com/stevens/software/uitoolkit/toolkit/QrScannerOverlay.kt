@@ -196,7 +196,6 @@ private fun FlashButton(
     isFlashEnabled: Boolean,
     onFlashToggled: (Boolean) -> Unit
 ){
-    var isFlashEnabled by remember { mutableStateOf(isFlashEnabled) }
     val flashIcon = when(isFlashEnabled) {
         true -> painterResource(R.drawable.enabled_flash_icon)
         false -> painterResource(R.drawable.disabled_flash_icon)
@@ -213,8 +212,7 @@ private fun FlashButton(
 
     Button(
         onClick = {
-            isFlashEnabled = isFlashEnabled.not()
-            onFlashToggled(isFlashEnabled)
+            onFlashToggled(isFlashEnabled.not())
         },
         modifier = Modifier
             .padding(start = 24.dp, top = 19.dp)
