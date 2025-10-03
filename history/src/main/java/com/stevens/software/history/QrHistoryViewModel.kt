@@ -22,8 +22,8 @@ class QrHistoryViewModel(
         val allQrs: List<HistoricQrCode> = qrs.mapNotNull { it.toHistoricQrCode() }
 
         QrHistoryUiState(
-            scannedQrs = allQrs.filterNot { it.userGenerated },
-            generatedQrs = allQrs.filter { it.userGenerated }
+            scannedQrs = allQrs.filterNot { it.userGenerated }.sortedByDescending { it.isFavourite },
+            generatedQrs = allQrs.filter { it.userGenerated }.sortedByDescending { it.isFavourite }
         )
     }.stateIn(
         viewModelScope,
